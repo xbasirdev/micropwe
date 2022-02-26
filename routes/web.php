@@ -20,4 +20,18 @@ $router->group(['prefix' => 'api'], function () use ($router) {
         $router->patch('/{product}', ['uses' => 'ProductController@update']);
         $router->delete('/{product}', ['uses' => 'ProductController@destroy']);
     });
+    $router->group(['prefix' => 'actoGrado'], function () use ($router) {
+        $router->get('/', ['uses' => 'ActoGradoController@index']);
+        $router->post('/', ['uses' => 'ActoGradoController@store']);
+        $router->get('/{actoGrado}', ['uses' => 'ActoGradoController@show']);
+        $router->patch('/{actoGrado}', ['uses' => 'ActoGradoController@update']);
+        $router->delete('/{actoGrado}', ['uses' => 'ActoGradoController@destroy']);
+    });
+    $router->group(['prefix' => 'presentacionDep'], function () use ($router) {
+        $router->get('/', ['uses' => 'PresentacionDepController@index']);
+        $router->post('/', ['uses' => 'PresentacionDepController@store']);
+        $router->get('/{presentacionDep}', ['uses' => 'PresentacionDepController@show']);
+        $router->patch('/{presentacionDep}', ['uses' => 'PresentacionDepController@update']);
+        $router->delete('/{presentacionDep}', ['uses' => 'PresentacionDepController@destroy']);
+    });
 });
