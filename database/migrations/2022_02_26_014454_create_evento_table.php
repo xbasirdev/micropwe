@@ -15,6 +15,13 @@ class CreateEventoTable extends Migration
     {
         Schema::create('evento', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('user_id')->nullable();
+            $table->string('titulo');
+            $table->string('descripcion')->nullable();
+            $table->string('carreras')->nullable();
+            $table->string('lugar');
+            $table->string('imagen')->nullable();
+            $table->date('fecha')->nullable();
             $table->timestamps();
         });
     }

@@ -15,6 +15,13 @@ class CreateActividadExtensionTable extends Migration
     {
         Schema::create('actividad_extension', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('user_id')->nullable();
+            $table->string('titulo');
+            $table->string('descripcion')->nullable();
+            $table->string('carrera')->nullable();
+            $table->string('tipo');
+            $table->string('imagen')->nullable();
+            $table->date('periodo')->nullable();
             $table->timestamps();
         });
     }

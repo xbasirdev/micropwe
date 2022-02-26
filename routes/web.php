@@ -34,4 +34,20 @@ $router->group(['prefix' => 'api'], function () use ($router) {
         $router->patch('/{presentacionDep}', ['uses' => 'PresentacionDepController@update']);
         $router->delete('/{presentacionDep}', ['uses' => 'PresentacionDepController@destroy']);
     });
+
+    $router->group(['prefix' => 'evento'], function () use ($router) {
+        $router->get('/', ['uses' => 'EventoController@index']);
+        $router->post('/', ['uses' => 'EventoController@store']);
+        $router->get('/{evento}', ['uses' => 'EventoController@show']);
+        $router->patch('/{evento}', ['uses' => 'EventoController@update']);
+        $router->delete('/{evento}', ['uses' => 'EventoController@destroy']);
+    });
+
+    $router->group(['prefix' => 'actividadExtension'], function () use ($router) {
+        $router->get('/', ['uses' => 'ActividadExtensionController@index']);
+        $router->post('/', ['uses' => 'ActividadExtensionController@store']);
+        $router->get('/{actividadExtension}', ['uses' => 'ActividadExtensionController@show']);
+        $router->patch('/{actividadExtension}', ['uses' => 'ActividadExtensionController@update']);
+        $router->delete('/{actividadExtension}', ['uses' => 'ActividadExtensionController@destroy']);
+    });
 });
