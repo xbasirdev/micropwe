@@ -11,8 +11,8 @@ class ProductController extends Controller
 
     public function index()
     {
-        $products = Product::all();
-        return $this->successResponse($products);
+        //$products = Product::all();
+        return Response::json(['create'=>true],200);
     }
 
     public function show($product)

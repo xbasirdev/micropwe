@@ -39,8 +39,6 @@ class CarreraController extends Controller
             'nombre' => 'max:120',
         ];
 
-        return $this->successResponse($request);
-
         $this->validate($request, $rules);
         $carrera = Carrera::findOrFail($carrera);
         $carrera = $carrera->fill($request->all());
