@@ -23,6 +23,7 @@ class PresentacionDepController extends Controller
 
     public function store(Request $request)
     {
+
         $rules = [
             'user_id' => 'required',
             'titulo' => 'required|max:120',
@@ -32,7 +33,7 @@ class PresentacionDepController extends Controller
             'fecha' => 'max:255',
         ];
         $this->validate($request, $rules);
-
+       
         if ($request->hasFile('img')) {
             $image      = $request->file('img');
             $destination = "images/";
@@ -40,7 +41,6 @@ class PresentacionDepController extends Controller
             $imagenSubida = $request->file("img")->move($destination, $fileName);
             $request->merge(['imagen' => $destination . $fileName]);
         }
-        
         $presentacion_dep = PresentacionDep::create($request->all());
         return $this->successResponse($presentacion_dep);
 
@@ -58,13 +58,17 @@ class PresentacionDepController extends Controller
         ];
 
         $this->validate($request, $rules);
+
+        if ($request->hasFile('img')) {
+            $image      = $request->file('img');
+            $destination = "images/";
+            $fileName   = time() . '.' . $image->getClientOriginalExtension();
+            $imagenSubida = $request->file("img")->move($destination, $fileName);
+            $request->merge(['imagen' => $destination . $fileName]);
+        }
+
         $presentacion_dep = PresentacionDep::findOrFail($presentacion_dep);
         $presentacion_dep = $presentacion_dep->fill($request->all());
-
-        if ($presentacion_dep->isClean()) {
-            return $this->errorResponse('at least one value must be change',
-                Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
 
         $presentacion_dep->save();
         return $this->successResponse($presentacion_dep);
