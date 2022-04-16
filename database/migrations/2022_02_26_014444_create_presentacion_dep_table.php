@@ -21,7 +21,7 @@ class CreatePresentacionDepTable extends Migration
             $table->string('deporte');
             $table->string('lugar');
             $table->string('imagen')->nullable();
-            $table->date('fecha')->nullable();
+            $table->string('fecha')->nullable();
             $table->timestamps();
         });
     }

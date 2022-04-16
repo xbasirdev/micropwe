@@ -15,6 +15,6 @@ class PresentacionDep extends Model
 
     public $table = "presentacion_dep";
     protected $fillable = [
-        'titulo', 'descripcion', 'deporte', 'lugar'
+        'titulo', 'user_id', 'descripcion', 'deporte', 'lugar', 'fecha', 'imagen'
     ];
 }

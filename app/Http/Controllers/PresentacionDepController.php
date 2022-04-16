@@ -29,11 +29,18 @@ class PresentacionDepController extends Controller
             'descripcion' => 'required|max:255',
             'deporte' => 'required|max:120',
             'lugar' => 'required|max:120',
-            'imagen' => 'required|max:255',
             'fecha' => 'max:255',
         ];
-
         $this->validate($request, $rules);
+
+        if ($request->hasFile('img')) {
+            $image      = $request->file('img');
+            $destination = "images/";
+            $fileName   = time() . '.' . $image->getClientOriginalExtension();
+            $imagenSubida = $request->file("img")->move($destination, $fileName);
+            $request->merge(['imagen' => $destination . $fileName]);
+        }
+        
         $presentacion_dep = PresentacionDep::create($request->all());
         return $this->successResponse($presentacion_dep);
 
@@ -49,8 +56,6 @@ class PresentacionDepController extends Controller
             'imagen' => 'max:255',
             'fecha' => 'max:255',
         ];
-
-        return $this->successResponse($request);
 
         $this->validate($request, $rules);
         $presentacion_dep = PresentacionDep::findOrFail($presentacion_dep);
