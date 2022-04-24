@@ -18,8 +18,7 @@ class CreateCuestionarioTable extends Migration
             $table->string('nombre');
             $table->string('descripcion');
             $table->string('tipo');
-            $table->integer('objetivo_id')->unsigned();
-            $table->foreign('objetivo_id')->references('id')->on('objetivo_cuestionario');
+            $table->string('privacidad');
             $table->integer('user_id')->nullable();
             $table->date('fecha_inicio');
             $table->date('fecha_fin');

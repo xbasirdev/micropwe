@@ -15,7 +15,7 @@ class Cuestionario extends Model
 
     public $table = "cuestionario";
     protected $fillable = [
-        'nombre', 'user_id', 'descripcion', 'tipo', 'objetivo_id', 'fecha_inicio', 'fecha_fin',
+        'nombre', 'user_id', 'descripcion', 'tipo', 'privacidad', 'fecha_inicio', 'fecha_fin',
     ];
 
 }

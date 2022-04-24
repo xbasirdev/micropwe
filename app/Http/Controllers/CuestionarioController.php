@@ -27,7 +27,7 @@ class CuestionarioController extends Controller
             'nombre' => 'required|max:120',
             'descripcion' => 'required|max:240',
             'tipo' => 'required|max:60',
-            'objetivo_id' => 'required'
+            'privacidad' => 'required'
         ];
 
         $this->validate($request, $rules);
@@ -42,7 +42,7 @@ class CuestionarioController extends Controller
             'nombre' => 'required|max:120',
             'descripcion' => 'required|max:240',
             'tipo' => 'required|max:60',
-            'objetivo_id' => 'required'
+            'privacidad' => 'required'
         ];
 
         $this->validate($request, $rules);
