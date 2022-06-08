@@ -15,7 +15,7 @@ class objetivoCuestionario extends Model
 
     public $table = "objetivo_cuestionario";
     protected $fillable = [
-        'nombre', 'descripcion', 'intervalo'
+        'carrera_id', 'cuestionario_id'
     ];
 
 }

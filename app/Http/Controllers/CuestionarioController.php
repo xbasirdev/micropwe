@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Cuestionario;
+use App\ObjetivoCuestionario;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -32,11 +33,18 @@ class CuestionarioController extends Controller
 
         $this->validate($request, $rules);
         $cuestionario = Cuestionario::create($request->all());
+        $carrerasArray = explode(',', $request->objetivo);
+        foreach ($carrerasArray as $carrera){
+            $carreraGuardada = ObjetivoCuestionario::create([
+                'carrera_id' => $carrera,
+                'cuestionario_id' => $cuestionario->id,
+            ]);
+        }
         return $this->successResponse($cuestionario);
 
     }
 
-    public function update(Request $request, $cuestionario)
+    public function update(Request $request, $cuestionarioID)
     {
         $rules = [
             'nombre' => 'required|max:120',
@@ -46,7 +54,7 @@ class CuestionarioController extends Controller
         ];
 
         $this->validate($request, $rules);
-        $cuestionario = Cuestionario::findOrFail($cuestionario);
+        $cuestionario = Cuestionario::findOrFail($cuestionarioID);
         $cuestionario = $cuestionario->fill($request->all());
 
         if ($cuestionario->isClean()) {
@@ -55,6 +63,14 @@ class CuestionarioController extends Controller
         }
 
         $cuestionario->save();
+        $deleted = DB::table('objetivo_cuestionario')->where('cuestionario_id', '=', $cuestionarioID)->delete();
+        $carrerasArray = explode(',', $request->objetivo);
+        foreach ($carrerasArray as $carrera){
+            $carreraGuardada = ObjetivoCuestionario::create([
+                'carrera_id' => $carrera,
+                'cuestionario_id' => $cuestionario->id,
+            ]);
+        }
         return $this->successResponse($cuestionario);
     }
 

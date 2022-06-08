@@ -15,11 +15,10 @@ class CreateObjetivoCuestionarioTable extends Migration
     {
         Schema::create('objetivo_cuestionario', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('nombre');
-            $table->string('descripcion');
-            $table->string('intervalo');
             $table->integer('carrera_id')->unsigned();
             $table->foreign('carrera_id')->references('id')->on('carrera');
+            $table->integer('cuestionario_id')->unsigned();
+            $table->foreign('cuestionario_id')->references('id')->on('cuestionario');
             $table->timestamps();
         });
     }

@@ -2,23 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\CuestionarioObjetivo;
+use App\ObjetivoCuestionario;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 
-class CuestionarioObjetivoController extends Controller
+class ObjetivoCuestionarioController extends Controller
 {
 
     public function index()
     {
-        $cuestionarioObjetivo = CuestionarioObjetivo::all();
+        $cuestionarioObjetivo = ObjetivoCuestionario::all();
         return $this->successResponse($cuestionarioObjetivo);
     }
 
     public function show($cuestionarioObjetivo)
     {
-        $cuestionarioObjetivo = CuestionarioObjetivo::findOrFail($cuestionarioObjetivo);
-        return $this->successResponse($cuestionarioObjetivo);
+        //$carreras = ObjetivoCuestionario::where('cuestionario_id', $cuestionarioObjetivo);
+        $carreras = \DB::table('objetivo_cuestionario')
+        ->where('cuestionario_id',$cuestionarioObjetivo)
+        ->get();
+
+        $carrerasFinal = array();
+        foreach ($carreras as $carrera){
+            array_push($carrerasFinal, $carrera->carrera_id);
+        }
+        return $this->successResponse($carrerasFinal);
     }
 
     public function store(Request $request)
@@ -29,7 +38,7 @@ class CuestionarioObjetivoController extends Controller
         ];
 
         $this->validate($request, $rules);
-        $cuestionarioObjetivo = CuestionarioObjetivo::create($request->all());
+        $cuestionarioObjetivo = ObjetivoCuestionario::create($request->all());
         return $this->successResponse($cuestionarioObjetivo);
 
     }
@@ -42,7 +51,7 @@ class CuestionarioObjetivoController extends Controller
         ];
 
         $this->validate($request, $rules);
-        $cuestionarioObjetivo = CuestionarioObjetivo::findOrFail($cuestionarioObjetivo);
+        $cuestionarioObjetivo = ObjetivoCuestionario::findOrFail($cuestionarioObjetivo);
         $cuestionarioObjetivo = $cuestionarioObjetivo->fill($request->all());
 
         if ($cuestionarioObjetivo->isClean()) {
@@ -58,7 +67,7 @@ class CuestionarioObjetivoController extends Controller
     public function destroy($cuestionarioObjetivo)
     {
 
-        $cuestionarioObjetivo = CuestionarioObjetivo::findOrFail($cuestionarioObjetivo);
+        $cuestionarioObjetivo = ObjetivoCuestionario::findOrFail($cuestionarioObjetivo);
         $cuestionarioObjetivo->delete();
         return $this->successResponse($cuestionarioObjetivo);
     }
