@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ObjetivoCuestionario extends Model
+class User extends Model
 {
 
     /**
@@ -13,9 +13,9 @@ class ObjetivoCuestionario extends Model
      * @var array
      */
 
-    public $table = "objetivo_cuestionario";
+    public $table = "users";
     protected $fillable = [
-        'carrera_id', 'cuestionario_id'
+        'nombres', 'apellidos', 'cedula', 'telefono', "correo", "user_id"
     ];
 
 }

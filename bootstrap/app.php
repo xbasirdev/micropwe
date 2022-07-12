@@ -1,10 +1,14 @@
 <?php
 
-require_once __DIR__.'/../vendor/autoload.php';
+declare (strict_types = 1);
+
+require_once __DIR__ . '/../vendor/autoload.php';
 
 try {
-    (new Dotenv\Dotenv(dirname(__DIR__)))->load();
-} catch (Dotenv\Exception\InvalidPathException $e) {
+    (new Laravel\Lumen\Bootstrap\LoadEnvironmentVariables(
+        dirname(__DIR__)
+    ))->bootstrap();
+} catch (Dotenv\Exception\InvalidPathException$e) {
     //
 }
 
@@ -79,9 +83,9 @@ $app->singleton(
 |
 */
 
-// $app->register(App\Providers\AppServiceProvider::class);
-// $app->register(App\Providers\AuthServiceProvider::class);
-// $app->register(App\Providers\EventServiceProvider::class);
+ $app->register(App\Providers\AppServiceProvider::class);
+ $app->register(App\Providers\AuthServiceProvider::class);
+ $app->register(App\Providers\EventServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------
@@ -93,7 +97,7 @@ $app->singleton(
 | can respond to, as well as the controllers that may handle them.
 |
 */
-
+app('translator')->setLocale('es');
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
