@@ -30,6 +30,7 @@ $app = new Laravel\Lumen\Application(
  $app->withFacades();
 
  $app->withEloquent();
+ 
 
 /*
 |--------------------------------------------------------------------------
@@ -86,6 +87,11 @@ $app->singleton(
  $app->register(App\Providers\AppServiceProvider::class);
  $app->register(App\Providers\AuthServiceProvider::class);
  $app->register(App\Providers\EventServiceProvider::class);
+$app->register(Illuminate\Mail\MailServiceProvider::class);
+$app->register(Illuminate\Notifications\NotificationServiceProvider::class);
+$app->withFacades(true, [
+    Illuminate\Support\Facades\Notification::class => "Notification"
+]);
 
 /*
 |--------------------------------------------------------------------------
@@ -97,6 +103,18 @@ $app->singleton(
 | can respond to, as well as the controllers that may handle them.
 |
 */
+$app->configure('app');
+$app->configure('services');
+$app->configure('mail');
+
+$app->alias('mail.manager', Illuminate\Mail\MailManager::class);
+$app->alias('mail.manager', Illuminate\Contracts\Mail\Factory::class);
+
+$app->alias('mailer', Illuminate\Mail\Mailer::class);
+$app->alias('mailer', Illuminate\Contracts\Mail\Mailer::class);
+$app->alias('mailer', Illuminate\Contracts\Mail\MailQueue::class);
+
+
 app('translator')->setLocale('es');
 $app->router->group([
     'namespace' => 'App\Http\Controllers',

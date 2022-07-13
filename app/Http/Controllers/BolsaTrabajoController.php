@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\BolsaTrabajo;
+use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Events\NewRegistrationInModulesOfInterestEvent;
 
 class BolsaTrabajoController extends Controller
 {
