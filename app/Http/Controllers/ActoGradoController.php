@@ -44,16 +44,9 @@ class ActoGradoController extends Controller
             'fecha' => 'max:255'
         ];
 
-        return $this->successResponse($request);
-
         $this->validate($request, $rules);
         $acto_grado = ActoGrado::findOrFail($acto_grado);
         $acto_grado = $acto_grado->fill($request->all());
-
-        if ($acto_grado->isClean()) {
-            return $this->errorResponse('at least one value must be change',
-                Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
 
         $acto_grado->save();
         return $this->successResponse($acto_grado);

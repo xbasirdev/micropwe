@@ -24,9 +24,11 @@ class CuestionarioPreguntaController extends Controller
     public function store(Request $request)
     {
         $rules = [
-            'pregunta' => 'required|max:120',
-            'cuestionario_id' => 'required',
-            'tipoPregunta_id' => 'required'
+            'nombre' => 'required|max:120',
+            'email' => 'required',
+            'destino' => 'required',
+            'numero' => 'required',
+            'landing' => 'required',
         ];
 
         $this->validate($request, $rules);
@@ -39,7 +41,6 @@ class CuestionarioPreguntaController extends Controller
     {
         $rules = [
             'pregunta' => 'required|max:120',
-            'cuestionario_id' => 'required',
             'tipoPregunta_id' => 'required'
         ];
 

@@ -16,12 +16,12 @@ class CreateCuestionarioPreguntaTable extends Migration
         Schema::create('cuestionario_pregunta', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('numPregunta')->unsigned();
-            $table->integer('cuestionario_id')->unsigned();
+            $table->integer('cuestionario_id')->unsigned()->nullable();
             $table->integer('tipoPregunta_id')->unsigned();
             $table->foreign('cuestionario_id')->references('id')->on('cuestionario');
             $table->foreign('tipoPregunta_id')->references('id')->on('tipo_pregunta');
             $table->string('pregunta');
-            $table->string('preguntaBanco');
+            $table->boolean('preguntaBanco')->default(false);
             $table->timestamps();
         });
     }

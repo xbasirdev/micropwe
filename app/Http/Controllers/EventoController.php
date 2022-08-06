@@ -29,11 +29,19 @@ class EventoController extends Controller
             'descripcion' => 'required|max:255',
             'carreras' => 'max:120',
             'lugar' => 'required|max:120',
-            'imagen' => 'max:255',
             'fecha' => 'max:255',
         ];
 
         $this->validate($request, $rules);
+
+        if ($request->hasFile('img')) {
+            $image      = $request->file('img');
+            $destination = "images/";
+            $fileName   = time() . '.' . $image->getClientOriginalExtension();
+            $imagenSubida = $request->file("img")->move($destination, $fileName);
+            $request->merge(['imagen' => $destination . $fileName]);
+        }
+
         $evento = Evento::create($request->all());
         return $this->successResponse($evento);
 
@@ -46,20 +54,19 @@ class EventoController extends Controller
             'descripcion' => 'max:255',
             'carreras' => 'max:120',
             'lugar' => 'max:120',
-            'imagen' => 'max:255',
             'fecha' => 'max:255',
         ];
 
-        return $this->successResponse($request);
+        if ($request->hasFile('img')) {
+            $image      = $request->file('img');
+            $destination = "images/";
+            $fileName   = time() . '.' . $image->getClientOriginalExtension();
+            $imagenSubida = $request->file("img")->move($destination, $fileName);
+            $request->merge(['imagen' => $destination . $fileName]);
+        }
 
-        $this->validate($request, $rules);
         $evento = Evento::findOrFail($evento);
         $evento = $evento->fill($request->all());
-
-        if ($evento->isClean()) {
-            return $this->errorResponse('at least one value must be change',
-                Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
 
         $evento->save();
         return $this->successResponse($evento);
