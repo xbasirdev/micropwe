@@ -21,7 +21,7 @@ class CreateActividadExtensionTable extends Migration
             $table->string('carrera')->nullable();
             $table->string('tipo');
             $table->string('imagen')->nullable();
-            $table->date('periodo')->nullable();
+            $table->string('periodo')->nullable();
             $table->timestamps();
         });
     }
