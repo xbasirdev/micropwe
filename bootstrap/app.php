@@ -53,6 +53,14 @@ $app->singleton(
     App\Console\Kernel::class
 );
 
+$app->singleton('filesystem', function ($app) {
+    return $app->loadComponent(
+        'filesystems',
+        Illuminate\Filesystem\FilesystemServiceProvider::class,
+        'filesystem'
+    );
+});
+
 /*
 |--------------------------------------------------------------------------
 | Register Middleware
@@ -89,8 +97,11 @@ $app->singleton(
  $app->register(App\Providers\EventServiceProvider::class);
 $app->register(Illuminate\Mail\MailServiceProvider::class);
 $app->register(Illuminate\Notifications\NotificationServiceProvider::class);
+$app->register(Maatwebsite\Excel\ExcelServiceProvider::class);
+$app->register(Illuminate\Filesystem\FilesystemServiceProvider::class);
+
 $app->withFacades(true, [
-    Illuminate\Support\Facades\Notification::class => "Notification"
+    Illuminate\Support\Facades\Notification::class => "Notification",
 ]);
 
 /*
@@ -106,6 +117,7 @@ $app->withFacades(true, [
 $app->configure('app');
 $app->configure('services');
 $app->configure('mail');
+$app->configure('filesystems');
 
 $app->alias('mail.manager', Illuminate\Mail\MailManager::class);
 $app->alias('mail.manager', Illuminate\Contracts\Mail\Factory::class);
@@ -113,6 +125,10 @@ $app->alias('mail.manager', Illuminate\Contracts\Mail\Factory::class);
 $app->alias('mailer', Illuminate\Mail\Mailer::class);
 $app->alias('mailer', Illuminate\Contracts\Mail\Mailer::class);
 $app->alias('mailer', Illuminate\Contracts\Mail\MailQueue::class);
+class_alias('Maatwebsite\Excel\Facades\Excel', 'Excel');
+
+
+
 
 
 app('translator')->setLocale('es');

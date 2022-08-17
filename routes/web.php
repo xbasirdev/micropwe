@@ -20,12 +20,15 @@ $router->group(['prefix' => 'api'], function () use ($router) {
         $router->patch('/{product}', ['uses' => 'ProductController@update']);
         $router->delete('/{product}', ['uses' => 'ProductController@destroy']);
     });
-    $router->group(['prefix' => 'user'], function () use ($router) {
-        $router->get('/', ['uses' => 'UserController@index']);
-        $router->post('/', ['uses' => 'UserController@store']);
-        $router->get('/{user}', ['uses' => 'UserController@show']);
-        $router->patch('/{user}', ['uses' => 'UserController@update']);
-        $router->delete('/{user}', ['uses' => 'UserController@destroy']);
+    $router->group(['prefix' => 'user', 'as' => "user"], function () use ($router) {
+        $router->get('/', ['as' => 'index', 'uses' => 'UserController@index']);
+        $router->post('/', ['as' => 'store', 'uses' => 'UserController@store']);
+        $router->get('/{user}', ['as' => 'show', 'uses' => 'UserController@show']);
+        $router->patch('/{user}', ['as' => 'update', 'uses' => 'UserController@update']);
+        $router->patch('/{user}/password', ['as' => 'update-password', 'uses' => 'UserController@updatePassword']);
+        $router->post('/export', ['as' => 'export', 'uses' => 'UserController@export']);
+        $router->post('/import', ['as' => 'import', 'uses' => 'UserController@import']);
+        $router->delete('/{user}', ['as' => 'destroy', 'uses' => 'UserController@destroy']);
     });
     $router->group(['prefix' => 'actoGrado'], function () use ($router) {
         $router->get('/', ['uses' => 'ActoGradoController@index']);

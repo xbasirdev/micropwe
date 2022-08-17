@@ -13,6 +13,8 @@
         "illuminate/support": "^5.5",
         "laravel/lumen-framework": "5.8.*",
         "lcobucci/jwt": "3.3.3",
+        "league/flysystem": "1.0.8",
+        "maatwebsite/excel": "^3.1",
         "nesbot/carbon": "^2.59",
         "ramsey/uuid-doctrine": "^1.8",
         "tymon/jwt-auth": "^1.0",
@@ -25,6 +27,10 @@
         "phpunit/phpunit": "~7.0"
     },
     "autoload": {
+        "files": [
+            "app/Helpers/helpers.php",
+            "app/Helpers/lumen.php"
+         ],
         "classmap": [
             "database/seeds",
             "database/factories"

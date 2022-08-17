@@ -6,6 +6,10 @@ use App\User;
 use App\Egresado;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
+use App\Exports\UserExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
 
 use Validator;
 
@@ -40,7 +44,7 @@ class UserController extends Controller
                 "modo_registro"=>"string|required",
                 "correo_personal"=>"email|required|unique:egresado,correo",
                 "periodo_egreso"=>"string|required",
-                "fecha_egreso"=>"date|nullable",
+                "fecha_egreso"=>"nullable",
                 "carrera_id"=>"integer|required|exists:carrera,id",
                 "notificacion"=>"boolean|required",
             ];
@@ -97,7 +101,6 @@ class UserController extends Controller
         return $this->successResponse($user);
     }
 
-
     public function destroy($user)
     {
 
@@ -106,5 +109,62 @@ class UserController extends Controller
         return $this->successResponse($user);
     }
 
+    public function export(Request $request)
+    {
+        $users = User::whereIn("cedula", $request->users)->get();       
+        $title = "usuarios-" . Carbon::now()->format("yymdhms");
+        $ext = $request->base_format;
+        //$excel = Excel::download(new UserExport($users, $request->act_on), $title .'.'. $ext);
+        Excel::store(new UserExport($users, $request->act_on), $title .'.'. $ext, 'excel');
+        return "export";
+    }
+/*
+    public function import(Request $request)
+    {
+        return $this->successResponse($user);
 
+        $url_menus = submenus($slug);
+
+        //verificar si se envio el archivo
+        if (!$request->hasFile('file')) {
+            return redirect()->back()->withError(__('Select the file before sending it'));
+        }
+
+        // Obtener objeto de archivo
+        $file = $request->file('file');
+
+        //validar archivo e importar
+        if ($file->isValid()) {
+            // Determine si la extensión del archivo cumple con los requisitos
+            $allowExtension = ['xls', 'xlsx', 'csv'];
+            $fileExtension = $file->getClientOriginalExtension();
+            if (!in_array($fileExtension, $allowExtension)) {
+                return redirect()->back()->withError(__('The suffix of the file you uploaded is not supported, is supported ') . implode(',', $allowExtension));
+            }
+            $menu = $url_menus['menu'];
+            if ($data != 'root') {
+              $menu = $url_menus['menu'];
+            } else {
+                $menu = Menu::findBySlugOrId($data);
+            }
+            if ($slug == 'uncategorized') {
+                $request['uncategorized'] = ProductGroup::findBySlugOrId('uncategorized');
+            }
+            $menu->import($request);
+
+            if (!empty($menu->errors())) {
+                return redirect()->back()->with('errors_import', $menu->errors());
+            }
+            
+            Excel::import(new ProductImport($menu, $data), $file);
+
+            if (!empty($menu->errors())) {
+                return redirect()->back()->with('errors_import', $menu->errors());
+            }
+        }
+
+        return redirect()->back()->withSuccess(__('Imported products'));
+    }
+
+*/
 }

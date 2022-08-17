@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Carrera;
 
 class Egresado extends Model
 {
@@ -15,7 +16,17 @@ class Egresado extends Model
 
     public $table = "egresado";
     protected $fillable = [
-        'user_id', 'nombres', 'apellidos', 'modo_registro', 'cedula', 'correo', 'telefono', 'periodo_egreso', 'fecha_egreso', 'notificacion', 'carrera_id'       
+        'user_id','modo_registro', 'correo', 'periodo_egreso', 'fecha_egreso', 'notificacion', 'carrera_id'       
     ];
+
+    public function carrera()
+    {
+        return $this->belongsTo(Carrera::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }    
 
 }

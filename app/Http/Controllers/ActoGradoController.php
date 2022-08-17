@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\ActoGrado;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Events\NewRegistrationInModulesOfInterestEvent;
 
 class ActoGradoController extends Controller
 {
@@ -32,6 +33,17 @@ class ActoGradoController extends Controller
 
         $this->validate($request, $rules);
         $acto_grado = ActoGrado::create($request->all());
+        try {
+            $users = usuariosEgresadosConNotificacionesActivas();
+            if(!empty($users)){
+                $url = env("APP_URL_FRONT", "http://localhost:4200");
+                $message = "Esta disponible un nuevo acto de grado";
+                $title = "Acto de grado disponible";
+                event(new NewRegistrationInModulesOfInterestEvent($users, $url, $message, $title));
+            }
+        } catch (\Throwable$th) {
+            return $this->errorResponse( "Error al enviar correos: ". $th->getMessage(), 404);
+        }
         return $this->successResponse($acto_grado);
 
     }

@@ -4,10 +4,13 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
+use App\Traits\ImportTrait;
+use App\Carrera;
+use App\Egresado;
 
 class User extends Model
 {
-    use Notifiable;
+    use Notifiable, ImportTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -17,7 +20,16 @@ class User extends Model
 
     public $table = "users";
     protected $fillable = [
-        'nombres', 'apellidos', 'cedula', 'telefono', "correo", "user_id"
+        'id','nombres', 'apellidos', 'cedula', 'telefono', "correo", "user_id"
     ];
 
+    public function carrera()
+    {
+        return $this->hasOne(Carrera::class);
+    }
+
+    public function egresado()
+    {
+        return $this->hasOne(Egresado::class);
+    }
 }
