@@ -30,10 +30,9 @@ class BolsaTrabajoController extends Controller
             'user_id' => 'required',
             'empresa' => 'required',
             'vacantes' => 'required',
-            'carreras' => 'required',
+            'carrera_id' => 'required',
         ];
 
-        $this->validate($request, $rules);
         $bolsa_trabajo = BolsaTrabajo::create($request->all());
         return $this->successResponse($bolsa_trabajo);
 
@@ -49,16 +48,9 @@ class BolsaTrabajoController extends Controller
             'carreras' => 'required',
         ];
 
-        return $this->successResponse($request);
-
-        $this->validate($request, $rules);
+        //$this->validate($request, $rules);
         $bolsa_trabajo = BolsaTrabajo::findOrFail($bolsa_trabajo);
         $bolsa_trabajo = $bolsa_trabajo->fill($request->all());
-
-        if ($bolsa_trabajo->isClean()) {
-            return $this->errorResponse('at least one value must be change',
-                Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
 
         $bolsa_trabajo->save();
         return $this->successResponse($bolsa_trabajo);

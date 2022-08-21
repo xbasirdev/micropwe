@@ -20,7 +20,8 @@ class CreateBolsaTrabajoTable extends Migration
             $table->string('empresa');
             $table->string('vacantes')->nullable();
             $table->string('requisitos');
-            $table->string('carreras');
+            $table->integer('carrera_id');
+            $table->string('estatus');
             $table->date('fecha_publicacion')->nullable();
             $table->date('fecha_disponibilidad')->nullable();
             $table->string('contacto')->nullable();
