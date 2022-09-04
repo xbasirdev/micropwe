@@ -22,7 +22,7 @@ if(!function_exists('usuarioEgresado'))
         */
         function usuarioEgresado()
         {
-                return App\User::whereHas("egresado")->get();
+                return App\User::whereHas("egresado")->with("egresado")->get();
         }
 }
 

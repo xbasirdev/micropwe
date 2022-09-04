@@ -35,15 +35,13 @@ class UserExport implements FromCollection, WithMapping, WithCustomCsvSettings, 
             "Correo",
         ];
        
-        if($this->type=='graduate'){
-            $return  += [                
-                "Correo personal",
-                "Periodo de egreso",
-                "Fecha de egreso",
-                "Carrera ",
-                "Notificaciones activas",
-                "Modo en el que se registro",
-            ]; 
+        if($this->type=='graduate'){             
+            array_push($return,"Correo personal");
+            array_push($return,"Periodo de egreso");
+            array_push($return,"Fecha de egreso");
+            array_push($return,"Carrera");
+            array_push($return,"Notificaciones activas");
+            array_push($return,"Modo en el que se registro");
         }
         return $return;
     }
@@ -58,14 +56,12 @@ class UserExport implements FromCollection, WithMapping, WithCustomCsvSettings, 
             $user->correo,
         ];
         if($this->type=='graduate' && !empty($user->egresado)){
-            $return  += [     
-                $user->egresado->correo,
-                $user->egresado->periodo_egreso,
-                $user->egresado->fecha_egreso,
-                $user->egresado->carrera->nombre,
-                $user->egresado->notificacion == 1 ? "Si" : "No",
-                $user->egresado->modo_registro,
-            ];
+                array_push($return, $user->egresado->correo);
+                array_push($return, $user->egresado->periodo_egreso??"");
+                array_push($return, $user->egresado->fecha_egreso);
+                array_push($return, $user->egresado->carrera->nombre);
+                array_push($return, $user->egresado->notificacion === 1 ? "Si" : "No");
+                array_push($return, $user->egresado->modo_registro);
         }
         return $return;
 
@@ -99,7 +95,7 @@ class UserExport implements FromCollection, WithMapping, WithCustomCsvSettings, 
          * @return \Illuminate\Support\Collection
          */
 
-        return $this->users ?$this->users: User::all();
+        return $this->users ? $this->users: User::all();
     }
 
     public function getCsvSettings(): array

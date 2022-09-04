@@ -111,12 +111,21 @@ class UserController extends Controller
 
     public function export(Request $request)
     {
-        $users = User::whereIn("cedula", $request->users)->get();       
-        $title = "usuarios-" . Carbon::now()->format("yymdhms");
+        switch ($request->act_on) {
+            case 'administrator':
+                $users = usuarioAdministrador();
+            break;
+            case 'graduate':
+                $users = usuarioEgresado();
+            break;
+            default:
+                $users = User::All();
+            break;  
+        }
+        
         $ext = $request->base_format;
-        //$excel = Excel::download(new UserExport($users, $request->act_on), $title .'.'. $ext);
-        Excel::store(new UserExport($users, $request->act_on), $title .'.'. $ext, 'excel');
-        return "export";
+        $title = "usuarios-" . Carbon::now()->format("yymdhms").'.'. $ext;
+        return Excel::download(new UserExport($users, $request->act_on), $title );
     }
 /*
     public function import(Request $request)
