@@ -2,93 +2,95 @@
 
 namespace App\Traits;
 
-use \Illuminate\Support\Str;
-use App\Models\Menu;
-use App\Models\MenuType;
-use App\Models\Product;
-use App\Models\ProductGroup;
 use Maatwebsite\Excel\HeadingRowImport;
 use Validator;
+use App\User;
+use App\Egresado;
+use App\Carrera;
+use \Illuminate\Support\Str;
 trait ImportTrait
 {
-    protected $type;
+    protected $act_on;
+    protected $action;
     protected $errors = [];
     protected $line;
     protected $user_empty_lines;
     protected $validator_fails = [];
+    protected $new_user = [];
 
     public function import($request)
     {
         // Obtener objeto de archivo
-        $actions_on_user = $request->actions_on_user;
-        $file = $request->file('file');
-        $type = $request->type;
+        $this->action = $request->action;
+        $file = $request->file;
+        $this->act_on = $request->act_on;
 
-        if ($file->isValid()) {
-            //Obtener el encabezado de Excel
-            $headings = (new HeadingRowImport)->toArray($file);
+        //Obtener el encabezado de Excel
+        $headings = (new HeadingRowImport)->toArray($file);
 
-            //si tiene columnas repetidas
-            if (!empty(array_diff_assoc($headings[0][0], array_unique($headings[0][0])))) {
-                array_push($this->validator_fails, __('The loaded excel has columns with the same header name'));
-                return;
-            }
-
-            //Si encabezado del titulo trae menos de cinco elementos
-            
-            if (count(array_filter($headings[0][0])) === 5) {
-                array_push($this->validator_fails, __('The Excel file loaded must have more than five column.'));
-                return;
-            }
-
-            //Si encabezado del titulo es vacio
-            if (count(array_filter($headings[0][0])) === 0) {
-                array_push($this->validator_fails, __('The loaded Excel is empty or has empty titles.'));
-                return;
-            }
-
-            // Determinar no trae ni titulo ni sku
-            if (!in_array("nombres", $headings[0][0]) &&
-                !in_array("apellidos", $headings[0][0]) && 
-                !in_array("cedula", $headings[0][0]) && 
-                !in_array("telefono", $headings[0][0]) && 
-                !in_array("correo", $headings[0][0])) {
-                array_push($this->validator_fails, __('The loaded Excel does not have name, last name, id, phone or email column.'));
-                return;
-            }
+        //si tiene columnas repetidas
+        $repetido =array_diff_assoc($headings[0][0], array_unique($headings[0][0]));
+        if (!empty($repetido)) {
+            array_push($this->validator_fails, 'El archivo cargado posee los siguientes nombres de columnas repetidos: '. str_replace("_"," ", implode(", ",$repetido)));
+            return;
         }
+
+        //Si encabezado del titulo trae menos de cinco elementos
+        if (count(array_filter($headings[0][0])) === 5) {
+            array_push($this->validator_fails, 'El archivo cargado no posee la cantidad de columnas requerida');
+            return;
+        }
+
+        //Si encabezado del titulo es vacio
+        if (count(array_filter($headings[0][0])) === 0) {
+            array_push($this->validator_fails, 'El archivo cargado posee nombres de columnas vacio');
+            return;
+        }
+
+        // Determinar no trae ni titulo ni sku
+        if (!in_array("nombres", $headings[0][0]) &&
+            !in_array("apellidos", $headings[0][0]) &&
+            !in_array("cedula", $headings[0][0]) &&
+            !in_array("telefono", $headings[0][0]) &&
+            !in_array("correo", $headings[0][0])) {
+                if($this->act_on!="graduate"){
+                    array_push($this->validator_fails, 'El archivo cargado no posee todas las columnas requeridas para registrar usuarios: nombres, apellidos, cedula, telefono, correo'); 
+                }
+                if($this->act_on=="graduate" &&  !in_array("periodo_egreso", $headings[0][0]) && !in_array("carrera", $headings[0][0])){
+                    array_push($this->validator_fails, 'El archivo cargado no posee todas las columnas requeridas para registrar egresados: nombres, apellidos, cedula, telefono, correo, periodo de egreso, carrera'); 
+                }                                  
+            return;
+        }
+        
     }
 
-    public function verifyEmptyColumn(){
-        if(!empty($query['role'])){
-            if(!empty("nombres") && !empty("apellidos") && !empty("cedula") && !empty("telefono") && !empty("correo")){
-                if($query['role']=="egresado"){
-                    if(!empty("modo_registro") && !empty("correo_personal") && !empty("periodo_egreso") && !empty("notificacion") && !empty("carrera")){
-                        return true;
-                    }
-                    return false;
+    public function verifyEmptyColumn($query)
+    {
+        if (!empty($query["nombres"]) && !empty($query["apellidos"]) && !empty($query["cedula"]) && !empty($query["telefono"]) && !empty($query["correo"])) {
+            if ($this->act_on == "egresado") {
+                if (!empty($query["periodo_de_egreso"]) && !empty($query["carrera"])) {
+                    return true;
                 }
-                return true;
+                return false;
             }
+            return true;
         }
         return false;
     }
 
     //acciones sobre usuarios
-    public function actionsOnUser($query)
+    public function actionsOnUser($query, $line)
     {
-        $user = null;
-        if (!empty($query['cedula']) && !empty($query['correo'])) {
-            $user = User::where('cedula', $query['cedula'])->orWhere(where('correo', $query['correo']))->first();
-            if (empty($user) && !verifyEmptyColumn()) {
-                $this->user_empty_lines .= $this->line . ', ';
-                return;
-            }
+        $this->line =$line;
+        if(!$this->verifyEmptyColumn($query)){
+            $this->user_empty_lines .= $line . ', ';
+            return;
         }
-
-        switch ($this->actions_on_user) {
+        
+        $user = User::where('cedula', $query['cedula'])->first();
+        switch ($this->action) {
             //crear y actualizar usuarios
-            case 'update_and_create_new_user':
+            case 'update_and_create':
                 if (!empty($user)) {
                     $this->updateUser($query, $user);
                 } else {
@@ -96,18 +98,19 @@ trait ImportTrait
                 }
                 break;
             //solo actualizar usuarios
-            case 'update_existing_user_only':
+            case 'only_update':
                 if (!empty($user)) {
                     $this->updateUser($query, $user);
                 }
                 break;
             //solo crear usuarios
-            case 'only_create_new_user':
+            case 'only_create':
                 if (empty($user)) {
                     $this->createUser($query);
                 }
                 break;
             default:
+                array_push($this->validator_fails, 'Accion a ejecutar sobre los usuarios no es valida');
                 break;
         }
     }
@@ -115,11 +118,11 @@ trait ImportTrait
     public function errors($err = null)
     {
         if (!empty($err)) {
-            $this->errors += $err;
+            $this->errors += [$err];
 
         }
         if (!empty($this->user_empty_lines)) {
-            $this->errors += [trans('user_empty_lines', ['row' => $this->user_empty_lines])];
+            $this->errors += ["El archivo posee campos requeridos vacios en la linea ".  $this->user_empty_lines];
         }
 
         if (!empty($this->no_title_found)) {
@@ -134,23 +137,61 @@ trait ImportTrait
         }
     }
 
+    public function newUsers()
+    {
+        return $this->new_user ?? [];
+    }
+
     //validar Datos a importar
     public function validator($row, $action = 'create')
     {
-        $rules = null;
-        request()->request->add($row);      
+   
+        $rules = [
+            'nombres' => 'required|max:120',
+            'apellidos' => 'required|max:255',
+            'telefono' => 'required|max:120',
+        ];
+
+        if ($this->act_on == "egresado") {
+           $rules +=[
+                "periodo_egreso"=>"string|required",
+                "fecha_egreso"=>"nullable",
+                "carrera"=>"integer|required|exists:carrera,id",
+                "notificacion"=>"boolean|required",
+           ];
+        }
+        
         if ($action == 'create') {
-           
+            $rules += [
+                "correo"=>"email|required|unique:users,correo",
+                "cedula"=>"required|unique:users,cedula"
+            ];
+            if ($this->act_on == "graduate") {    
+                $rules +=[
+                    "correo_personal"=>"email|required|unique:egresado,correo",
+                ];
+            }
         }
         if ($action == 'update') {
-            
-        }        
+            $rules += [
+                'correo' => 'required|email|unique:users,correo,'.$row["user"]->id,
+                "cedula"=>"required|unique:users,cedula,".$row["user"]->id,
+            ];
+            if ($this->act_on == "graduate") {
+                $rules += [
+                    'correo_personal' => 'required|email|unique:egresado,correo,'.$row["user"]->egresado->id,
+                ];
+            }    
+        }    
+          
+        
         $validator = Validator::make($row, $rules);
+
         if ($validator->fails()) {
             $message = $validator->errors();
-            $err = trans('error_in', ['row' => $this->line]);
+            $err = 'Error en la linea: '. $this->line ." del archivo. ";
             foreach ($message->messages() as $key => $value) {
-                $err .= implode(",", ($value));
+                $err .= implode(", ", ($value));
             }
             array_push($this->validator_fails, $err);
             return false;
@@ -162,18 +203,57 @@ trait ImportTrait
     //crear usuarios
     public function createUser($query)
     {
+        $query["carrera"] = Carrera::where("nombre", $query["carrera"])->first()->id;
         if ($this->validator($query, 'create')) {
-            
+            $user = User::create([
+                'nombres'=>$query["nombres"],
+                'apellidos'=>$query["apellidos"],
+                'cedula'=>$query["cedula"],
+                'telefono'=>$query["telefono"],
+                'correo'=>$query["correo"],
+                'user_id'=>$this->id,
+            ]);
+            if ($this->act_on == "graduate") {
+                $egresado =Egresado::create([
+                    'user_id'=>$user->id,
+                    'modo_registro' =>"Exportado",
+                    'correo'=>$query["correo_personal"],
+                    'periodo_egreso'=>$query["periodo_de_egreso"],
+                    'fecha_egreso'=>$query["fecha_de_egreso"],
+                    'notificacion'=>$query["notificaciones_activas"],
+                    'carrera_id'=>$query["carrera"],
+                ]); 
+            }
+            array_push($this->new_user, ["new_user"=>true, "cedula"=>$user->cedula, "correo"=>$user->correo, "nombres"=>$user->nombres, "apellidos"=>$user->apellidos]);
         }
     }
 
     //actualizar usuarios
     public function updateUser($query, $user)
     {
-        $query['id'] = $user->id;      
+        $query["carrera"] = Carrera::where("nombre", $query["carrera"])->first()->id;
+        $query['id'] = $user->id;
+        $query['user'] = $user;
+        
         if ($this->validator($query, 'update')) {
-            $user->update($query);
-            $user->productGroups()->sync($user_groups);
+            $user->update([
+                'nombres'=>$query["nombres"],
+                'apellidos'=>$query["apellidos"],
+                'cedula'=>$query["cedula"],
+                'telefono'=>$query["telefono"],
+                'correo'=>$query["correo"]
+            ]);
+
+            if ($this->act_on == "graduate") {
+                $user->egresado->update([
+                    'correo'=>$query["correo_personal"],
+                    'periodo_egreso'=>$query["periodo_de_egreso"],
+                    'fecha_egreso'=>$query["fecha_de_egreso"],
+                    'notificacion'=>$query["notificaciones_activas"],
+                    'carrera_id'=>$query["carrera"],
+                ]);
+            }
+            array_push($this->new_user, ["new_user"=>false, "change_role"=>$query["cambiar_rol"] ?? false, "cedula"=>$user->cedula, "correo"=>$user->correo, "nombres"=>$user->nombres, "apellidos"=>$user->apellidos]);
         }
     }
 }

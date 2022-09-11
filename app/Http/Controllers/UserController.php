@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\User;
 use App\Egresado;
+use App\Exports\UserExport;
+use App\Imports\UserImport;
+use App\User;
+use Carbon\Carbon;
+use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Storage;
-use App\Exports\UserExport;
+use Illuminate\Http\UploadedFile;
 use Maatwebsite\Excel\Facades\Excel;
-use Carbon\Carbon;
-
-use Validator;
 
 class UserController extends Controller
 {
@@ -36,41 +36,41 @@ class UserController extends Controller
             'apellidos' => 'required|max:255',
             'cedula' => 'required|max:120',
             'telefono' => 'required|max:120',
-            "correo"=>"email|required|unique:users,correo",
-            "user_id"=>"nullable|exists:users,id"
+            "correo" => "email|required|unique:users,correo",
+            "user_id" => "nullable|exists:users,id",
         ];
-        if(!$request->es_administrador){  
-            $rules +=[
-                "modo_registro"=>"string|required",
-                "correo_personal"=>"email|required|unique:egresado,correo",
-                "periodo_egreso"=>"string|required",
-                "fecha_egreso"=>"nullable",
-                "carrera_id"=>"integer|required|exists:carrera,id",
-                "notificacion"=>"boolean|required",
+        if (!$request->es_administrador) {
+            $rules += [
+                "modo_registro" => "string|required",
+                "correo_personal" => "email|required|unique:egresado,correo",
+                "periodo_egreso" => "string|required",
+                "fecha_egreso" => "nullable",
+                "carrera_id" => "integer|required|exists:carrera,id",
+                "notificacion" => "boolean|required",
             ];
         }
-        
+
         $this->validate($request, $rules);
 
         $user = User::create([
-            "correo"=> $request->correo,
-            "user_id"=> $request->user_id ?? null,
+            "correo" => $request->correo,
+            "user_id" => $request->user_id ?? null,
             'nombres' => $request->nombres,
             'apellidos' => $request->apellidos,
             'cedula' => $request->cedula,
-            'telefono' => $request->telefono
+            'telefono' => $request->telefono,
         ]);
 
-        if(!$request->es_administrador){                        
+        if (!$request->es_administrador) {
             $egresado = Egresado::create([
-                "user_id"=>$user->id,
-                "modo_registro"=>$request->modo_registro,
-                "correo"=>$request->correo_personal,
-                "periodo_egreso"=>$request->periodo_egreso,
-                "fecha_egreso"=>$request->fecha_egreso,
-                "carrera_id"=>$request->carrera_id,
-                "notificacion"=>$request->notificacion,
-            ]);  
+                "user_id" => $user->id,
+                "modo_registro" => $request->modo_registro,
+                "correo" => $request->correo_personal,
+                "periodo_egreso" => $request->periodo_egreso,
+                "fecha_egreso" => $request->fecha_egreso,
+                "carrera_id" => $request->carrera_id,
+                "notificacion" => $request->notificacion,
+            ]);
         }
 
         return $this->successResponse($user);
@@ -111,69 +111,62 @@ class UserController extends Controller
 
     public function export(Request $request)
     {
-        switch ($request->act_on) {
-            case 'administrator':
-                $users = usuarioAdministrador();
-            break;
-            case 'graduate':
-                $users = usuarioEgresado();
-            break;
-            default:
-                $users = User::All();
-            break;  
-        }
-        
+        $users = User::whereIn("cedula", $request->users)->get();
         $ext = $request->base_format;
-        $title = "usuarios-" . Carbon::now()->format("yymdhms").'.'. $ext;
-        return Excel::download(new UserExport($users, $request->act_on), $title );
+        $title = "usuarios-" . Carbon::now()->format("yymdhms") . '.' . $ext;
+        return Excel::download(new UserExport($users, $request->act_on), $title);
     }
-/*
+
     public function import(Request $request)
     {
-        return $this->successResponse($user);
+      
+        $base64File = $request->file_encode;
+        $base64File = explode(',',  $base64File);
+        $ext = explode("/", $base64File[0]);
+        $ext = ".".str_replace(";base64","",$ext[2]);
+        // decode the base64 file
+        $fileData = base64_decode($base64File[1]);
 
-        $url_menus = submenus($slug);
+        
+        // save it to temporary dir first.
+        $tmpFilePath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . Carbon::now()->format("yymdhms").$ext;
+        
+        $file = file_put_contents($tmpFilePath, $fileData);
 
-        //verificar si se envio el archivo
-        if (!$request->hasFile('file')) {
-            return redirect()->back()->withError(__('Select the file before sending it'));
+        // this just to help us get file info.
+        $tmpFile = new File($tmpFilePath);
+
+        $file = new UploadedFile(
+            $tmpFile->getPathname(),
+            $tmpFile->getFilename(),
+            $tmpFile->getMimeType(),
+            0,
+            true// Mark it as test, since the file isn't from real HTTP POST.
+        );
+        
+        // Determine si la extensión del archivo cumple con los requisitos
+        $allowExtension = ['xls', 'xlsx', 'csv'];
+        $fileExtension = $file->getClientOriginalExtension();
+        
+        if (!in_array($fileExtension, $allowExtension)) {
+            return $this->errorResponse("El tipo de archivo no es valido, debe ingresar un archivo csv, xlsx o xls", 403);
+        }
+        
+        $request["file"]=$file;
+        $user = User::where("cedula", $request->user)->first();
+        
+        $user->import($request);
+        
+        if (!empty($user->errors())) {
+            return $this->errorResponse(["message" => "Error al importar: ", "messages" => $user->errors()], 403);
         }
 
-        // Obtener objeto de archivo
-        $file = $request->file('file');
-
-        //validar archivo e importar
-        if ($file->isValid()) {
-            // Determine si la extensión del archivo cumple con los requisitos
-            $allowExtension = ['xls', 'xlsx', 'csv'];
-            $fileExtension = $file->getClientOriginalExtension();
-            if (!in_array($fileExtension, $allowExtension)) {
-                return redirect()->back()->withError(__('The suffix of the file you uploaded is not supported, is supported ') . implode(',', $allowExtension));
-            }
-            $menu = $url_menus['menu'];
-            if ($data != 'root') {
-              $menu = $url_menus['menu'];
-            } else {
-                $menu = Menu::findBySlugOrId($data);
-            }
-            if ($slug == 'uncategorized') {
-                $request['uncategorized'] = ProductGroup::findBySlugOrId('uncategorized');
-            }
-            $menu->import($request);
-
-            if (!empty($menu->errors())) {
-                return redirect()->back()->with('errors_import', $menu->errors());
-            }
-            
-            Excel::import(new ProductImport($menu, $data), $file);
-
-            if (!empty($menu->errors())) {
-                return redirect()->back()->with('errors_import', $menu->errors());
-            }
+        Excel::import(new UserImport($user, $request->act_on), $file);
+        
+        if (!empty($user->errors())) {
+            return $this->errorResponse(["message" => "Error al importar: ", "messages" => $user->errors()], 403);
         }
 
-        return redirect()->back()->withSuccess(__('Imported products'));
+        return $this->successResponse(["new_users" => $user->newUsers()]);
     }
-
-*/
 }
