@@ -16,10 +16,10 @@ use Maatwebsite\Excel\Facades\Excel;
 class UserController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        $user = User::all();
-        return $this->successResponse($user);
+        $users = User::whereIn("cedula", $request->users)->get();
+        return $this->successResponse($users);
     }
 
     public function show($user)

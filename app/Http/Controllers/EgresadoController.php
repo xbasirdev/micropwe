@@ -5,19 +5,20 @@ namespace App\Http\Controllers;
 use App\Egresado;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\User;
 
 class EgresadoController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        $egresado = Egresado::all();
-        return $this->successResponse($egresado);
+        $users = User::with("egresado")->whereIn("cedula", $request->users)->get();
+        return $this->successResponse($users);
     }
 
     public function show($egresado)
     {
-        $egresado = Egresado::findOrFail($egresado);
+        $egresado = User::with("egresado")->where('cedula', $egresado)->first();
         return $this->successResponse($egresado);
     }
 
@@ -67,11 +68,17 @@ class EgresadoController extends Controller
 
     public function destroy($egresado)
     {
-
         $egresado = Egresado::findOrFail($egresado);
         $egresado->delete();
         return $this->successResponse($egresado);
     }
 
+    public function changeNotificationStatus(Request $request)
+    {
+        
+        $user = User::where("cedula", $request->id)->orWhere("correo", $request->id)->with("egresado")->first();
+        $egresado = Egresado::where("user_id", $user->id);
+        return $this->successResponse($egresado->update(["notificacion"=>$request->status=="1" ? true:false]));
+    }
 
 }

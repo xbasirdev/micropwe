@@ -30,6 +30,6 @@ class User extends Model
 
     public function egresado()
     {
-        return $this->hasOne(Egresado::class);
+        return $this->hasOne(Egresado::class)->with("carrera");
     }
 }

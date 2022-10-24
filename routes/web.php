@@ -21,8 +21,8 @@ $router->group(['prefix' => 'api'], function () use ($router) {
         $router->delete('/{product}', ['uses' => 'ProductController@destroy']);
     });
     $router->group(['prefix' => 'user', 'as' => "user"], function () use ($router) {
-        $router->get('/', ['as' => 'index', 'uses' => 'UserController@index']);
-        $router->post('/', ['as' => 'store', 'uses' => 'UserController@store']);
+        $router->post('/', ['as' => 'index', 'uses' => 'UserController@index']);
+        $router->post('/store', ['as' => 'store', 'uses' => 'UserController@store']);
         $router->get('/{user}', ['as' => 'show', 'uses' => 'UserController@show']);
         $router->patch('/{user}', ['as' => 'update', 'uses' => 'UserController@update']);
         $router->patch('/{user}/password', ['as' => 'update-password', 'uses' => 'UserController@updatePassword']);
@@ -78,8 +78,9 @@ $router->group(['prefix' => 'api'], function () use ($router) {
     });
 
     $router->group(['prefix' => 'egresado'], function () use ($router) {
-        $router->get('/', ['uses' => 'EgresadoController@index']);
-        $router->post('/', ['uses' => 'EgresadoController@store']);
+        $router->post('/', ['uses' => 'EgresadoController@index']);
+        $router->post('/store', ['uses' => 'EgresadoController@store']);
+        $router->post('/change-notification-status', ['as' => 'change-notification-status', 'uses' => 'EgresadoController@changeNotificationStatus']);
         $router->get('/{egresado}', ['uses' => 'EgresadoController@show']);
         $router->patch('/{egresado}', ['uses' => 'EgresadoController@update']);
         $router->delete('/{egresado}', ['uses' => 'EgresadoController@destroy']);

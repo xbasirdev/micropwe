@@ -40,7 +40,6 @@ class UserImport implements ToCollection, WithHeadingRow, WithCustomCsvSettings
             'cedula'=>"Cedula",
             'telefono'=>"Telefono",
             "correo"=>"Correo",
-            "cambiar_rol"=>"Cambiar Rol"
         ];
 
         if($this->type=='graduate'){     
@@ -50,7 +49,8 @@ class UserImport implements ToCollection, WithHeadingRow, WithCustomCsvSettings
                 "fecha_de_egreso" => "Fecha de egreso",
                 "carrera" => "Carrera",
                 "notificaciones_activas" => "Notificaciones activas",
-                "modo_en_el_que_se_registro" => "Modo en el que se registro"
+                "modo_en_el_que_se_registro" => "Modo en el que se registro",
+                "cambiar_rol"=>"Cambiar Rol"
             ];
         }
        
