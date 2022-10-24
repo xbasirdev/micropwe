@@ -24,8 +24,8 @@ class UserController extends Controller
 
     public function show($user)
     {
-        $user = User::findOrFail($user);
-        return $this->successResponse($user);
+        $users = User::where("cedula", $user)->first();
+        return $this->successResponse($users);
     }
 
     public function store(Request $request)
