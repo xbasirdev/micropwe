@@ -147,17 +147,17 @@ trait ImportTrait
     {
    
         $rules = [
-            'nombres' => 'required|max:120',
-            'apellidos' => 'required|max:255',
-            'telefono' => 'required|max:120',
+            'nombres' => 'required|string',
+            'apellidos' => 'required|string',
+            'telefono' => array("nullable","string","regex:/0(2(12|3[4589]|4[0-9]|[5-8][1-9]|9[1-5])|(4(12|14|16|24|26)))-?[0-9]{7}$/"),
         ];
 
         if ($this->act_on == "egresado") {
            $rules +=[
-                "periodo_egreso"=>"string|required",
-                "fecha_egreso"=>"nullable",
+                "periodo_egreso"=>array("required","regex:/^[12][0-9]{3}[-][1-9]{1}$/"),
+                "fecha_egreso"=>"nullable|date",
                 "carrera"=>"integer|required|exists:carrera,id",
-                "notificacion"=>"boolean|required",
+                "notificacion"=>"nullable|required",
            ];
         }
         
@@ -175,7 +175,7 @@ trait ImportTrait
         if ($action == 'update') {
             $rules += [
                 'correo' => 'required|email|unique:users,correo,'.$row["user"]->id,
-                "cedula"=>"required|unique:users,cedula,".$row["user"]->id,
+                "cedula"=> array('required','string','unique:users,cedula','regex:/[VvEe]-[0-9]{6,}$/'),
             ];
             if ($this->act_on == "graduate") {
                 $rules += [
@@ -204,6 +204,9 @@ trait ImportTrait
     public function createUser($query)
     {
         $query["carrera"] = Carrera::where("nombre", $query["carrera"])->first()->id;
+        if(!empty($query["fecha_de_egreso"])){
+            $query["fecha_de_egreso"] = Carbon::parse($query["fecha_de_egreso"])->utc()->toDateTimeString();
+        }
         if ($this->validator($query, 'create')) {
             $user = User::create([
                 'nombres'=>$query["nombres"],

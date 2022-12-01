@@ -29,6 +29,11 @@ $router->group(['prefix' => 'api'], function () use ($router) {
         $router->post('/export', ['as' => 'export', 'uses' => 'UserController@export']);
         $router->post('/import', ['as' => 'import', 'uses' => 'UserController@import']);
         $router->delete('/{user}', ['as' => 'destroy', 'uses' => 'UserController@destroy']);
+        $router->group(['prefix' => 'profile', 'as' => "profile"], function () use ($router) {
+            $router->post('/', ['as' => 'get-profile', 'uses' => 'UserController@getUserProfile']);
+            $router->post('/update', ['as' => 'update-profile', 'uses' => 'UserController@updateUserProfile']);
+            $router->post('/change-notification-status', ['as' => 'change-notification-status', 'uses' => 'EgresadoController@changeNotificationStatus']);
+        });
     });
     $router->group(['prefix' => 'actoGrado'], function () use ($router) {
         $router->get('/', ['uses' => 'ActoGradoController@index']);
@@ -79,11 +84,7 @@ $router->group(['prefix' => 'api'], function () use ($router) {
 
     $router->group(['prefix' => 'egresado'], function () use ($router) {
         $router->post('/', ['uses' => 'EgresadoController@index']);
-        $router->post('/store', ['uses' => 'EgresadoController@store']);
         $router->post('/change-notification-status', ['as' => 'change-notification-status', 'uses' => 'EgresadoController@changeNotificationStatus']);
-        $router->get('/{egresado}', ['uses' => 'EgresadoController@show']);
-        $router->patch('/{egresado}', ['uses' => 'EgresadoController@update']);
-        $router->delete('/{egresado}', ['uses' => 'EgresadoController@destroy']);
     });
 
     $router->group(['prefix' => 'bolsaEgresado'], function () use ($router) {

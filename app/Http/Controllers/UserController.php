@@ -6,12 +6,14 @@ use App\Egresado;
 use App\Exports\UserExport;
 use App\Imports\UserImport;
 use App\User;
+use App\Carrera;
 use Carbon\Carbon;
 use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -24,87 +26,143 @@ class UserController extends Controller
 
     public function show($user)
     {
-        $users = User::where("cedula", $user)->first();
-        return $this->successResponse($users);
+        $user = User::where('cedula', $user)->with(["egresado", "egresado.carrera"])->first();
+        return $this->successResponse($user);
     }
 
     public function store(Request $request)
     {
 
         $rules = [
-            'nombres' => 'required|max:120',
-            'apellidos' => 'required|max:255',
-            'cedula' => 'required|max:120',
-            'telefono' => 'required|max:120',
-            "correo" => "email|required|unique:users,correo",
-            "user_id" => "nullable|exists:users,id",
+            "nombres"=>"required|string",
+            "apellidos"=>"required|string",
+            "telefono"=>array("nullable","string","regex:/0(2(12|3[4589]|4[0-9]|[5-8][1-9]|9[1-5])|(4(12|14|16|24|26)))-?[0-9]{7}$/"),
+            'correo' => 'required|email|unique:users,correo',
+            'cedula' => array('required','string','unique:users,cedula','regex:/[VvEe]-[0-9]{6,}$/'),
+            "form_type"=>"required",
+            "user" => "required|exists:users,cedula",
         ];
-        if (!$request->es_administrador) {
+        
+        if($request->form_type == "graduate"){
             $rules += [
-                "modo_registro" => "string|required",
-                "correo_personal" => "email|required|unique:egresado,correo",
-                "periodo_egreso" => "string|required",
-                "fecha_egreso" => "nullable",
-                "carrera_id" => "integer|required|exists:carrera,id",
-                "notificacion" => "boolean|required",
+                "periodo_egreso"=>array("required","regex:/^[12][0-9]{3}[-][1-9]{1}$/"),
+                "correo_personal"=>"nullable|email",
+                "fecha_egreso"=>"nullable|date",
+                "carrera"=>"required|exists:carrera,id",
             ];
         }
-
+        
         $this->validate($request, $rules);
+        
+     
+        $user_admin = User::where("cedula", $request->user)->first();        
 
         $user = User::create([
             "correo" => $request->correo,
-            "user_id" => $request->user_id ?? null,
+            "user_id" => $user_admin->id,
             'nombres' => $request->nombres,
             'apellidos' => $request->apellidos,
-            'cedula' => $request->cedula,
+            'cedula' => strtoupper($request->cedula),
             'telefono' => $request->telefono,
         ]);
 
-        if (!$request->es_administrador) {
+        if($request->form_type == "graduate"){
+            $carrera = Carrera::where("id", $request->carrera)->first();
             $egresado = Egresado::create([
                 "user_id" => $user->id,
-                "modo_registro" => $request->modo_registro,
+                "modo_registro" => 'Por formulario',
                 "correo" => $request->correo_personal,
                 "periodo_egreso" => $request->periodo_egreso,
-                "fecha_egreso" => $request->fecha_egreso,
-                "carrera_id" => $request->carrera_id,
-                "notificacion" => $request->notificacion,
+                "fecha_egreso" => Carbon::parse($request->fecha_egreso)->utc()->toDateTimeString(),
+                "carrera_id" => $carrera->id,
+                "notificacion" => true,
             ]);
         }
 
         return $this->successResponse($user);
-
     }
 
     public function update(Request $request, $user)
     {
-        $rules = [
-            'titulo' => 'max:120',
-            'descripcion' => 'max:255',
-            'carrera' => 'max:120',
-            'tipo' => 'max:120',
-            'imagen' => 'max:255',
-            'periodo' => 'max:255',
-        ];
-
-        $this->validate($request, $rules);
-        $user = User::findOrFail($user);
-        $user = $user->fill($request->all());
-
-        if ($user->isClean()) {
-            return $this->errorResponse('at least one value must be change',
-                Response::HTTP_UNPROCESSABLE_ENTITY);
+        $user = User::where("cedula", $user)->first();
+        if($request->form_type != "profile" && $request->role == "administrator" ){
+            $rules = [
+                "nombres"=>"required|string",
+                "apellidos"=>"required|string",
+                "telefono"=>array("nullable","string","regex:/0(2(12|3[4589]|4[0-9]|[5-8][1-9]|9[1-5])|(4(12|14|16|24|26)))-?[0-9]{7}$/"),
+                'correo' => 'required|email|unique:users,correo,'.$user->id,
+                'cedula' => array('required','string','unique:users,cedula,'.$user->id,'regex:/[VvEe]-[0-9]{6,}$/'),
+                "form_type"=>"required",
+            ];
+        }
+        if($request->form_type != "profile" && $request->role != "administrator" ){
+            $rules += [
+                "periodo_egreso"=>array("required","regex:/^[12][0-9]{3}[-][1-9]{1}$/"),
+                "correo_personal"=>"nullable|email",
+                "fecha_egreso"=>"nullable|date",
+                "carrera"=>"required|exists:carrera,id",
+            ];
         }
 
-        $user->save();
+        if($request->form_type == "profile"){
+            $rules = [
+                "correo_personal"=>"nullable|email",
+                "telefono"=>array("nullable","string","regex:/0(2(12|3[4589]|4[0-9]|[5-8][1-9]|9[1-5])|(4(12|14|16|24|26)))-?[0-9]{7}$/"),
+            ];
+        }
+        
+        $this->validate($request, $rules);
+        
+        if($request->form_type == "profile"){
+            $user->update(['telefono' => $request->telefono]);
+            if($request->role == "graduate" ){
+                $user->egresado->update(["correo" => $request->correo_personal]);
+            }
+        }else{
+            
+            $user_admin = User::where("cedula", $request->user)->first();
+            $user->update([
+                "correo" => $request->correo,
+                'nombres' => $request->nombres,
+                'apellidos' => $request->apellidos,
+                'cedula' => strtoupper($request->cedula),
+                'telefono' => $request->telefono,
+                "user_id"=>$user_admin->id,
+            ]);
+
+            if($request->form_type == "graduate"){
+                $carrera = Carrera::where("id", $request->carrera)->first(); 
+                $egresado =  Egresado::where(["user_id"=> $user->id])->first();
+                
+                if(empty($egresado)){
+                    $egresado = Egresado::create([
+                        "correo" => $request->correo_personal,
+                        "periodo_egreso" => $request->periodo_egreso,
+                        "fecha_egreso" => Carbon::parse($request->fecha_egreso)->utc()->toDateTimeString(),
+                        "carrera_id" => $carrera->id,
+                        "user_id" => $user->id,
+                        "notificacion" => true,
+                        "modo_registro" => 'Por formulario',
+                    ]);
+                }else{
+                    $egresado->update([
+                        "correo" => $request->correo_personal,
+                        "periodo_egreso" => $request->periodo_egreso,
+                        "fecha_egreso" => Carbon::parse($request->fecha_egreso)->utc()->toDateTimeString(),
+                        "carrera_id" => $carrera->id,
+                    ]);
+
+                }
+                
+            }
+        }
+        
         return $this->successResponse($user);
     }
 
     public function destroy($user)
     {
-
-        $user = User::findOrFail($user);
+        $user = User::where("cedula",$user)->first();
         $user->delete();
         return $this->successResponse($user);
     }
