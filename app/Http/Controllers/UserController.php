@@ -85,7 +85,7 @@ class UserController extends Controller
     public function update(Request $request, $user)
     {
         $user = User::where("cedula", $user)->first();
-        if($request->form_type != "profile" && $request->role == "administrator" ){
+        if( $request->role == "graduate" || $request->role == "administrator" ){
             $rules = [
                 "nombres"=>"required|string",
                 "apellidos"=>"required|string",
