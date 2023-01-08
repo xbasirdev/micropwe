@@ -87,6 +87,11 @@ class UserImport implements ToCollection, WithHeadingRow, WithCustomCsvSettings
                 $query_user += ['correo' => $correo];
             }
 
+            if (!empty($row['cambiar_rol'])) {
+                $cambiar_rol = strtolower($row['cambiar_rol']) == strtolower("Si") ? true : false;
+                $query_user += ['cambiar_rol' => $cambiar_rol];
+            }
+
             if($this->type=='graduate'){ 
                
                 if (!empty($row['correo_personal'])) {
@@ -118,12 +123,6 @@ class UserImport implements ToCollection, WithHeadingRow, WithCustomCsvSettings
                     $notificaciones_activas = strtolower($row['notificaciones_activas']) == strtolower("Si") ? 1 : 0;
                     $query_user += ['notificaciones_activas' => $notificaciones_activas];
                 }
-
-                if (!empty($row['cambiar_rol'])) {
-                    $cambiar_rol = strtolower($row['cambiar_rol']) == strtolower("Si") ? true : false;
-                    $query_user += ['cambiar_rol' => $cambiar_rol];
-                }
-
             }           
             array_push($row_users, $query_user);
         }

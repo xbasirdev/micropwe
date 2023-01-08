@@ -225,6 +225,6 @@ class UserController extends Controller
             return $this->errorResponse(["message" => "Error al importar: ", "messages" => $user->errors()], 403);
         }
 
-        return $this->successResponse(["new_users" => $user->newUsers()]);
+        return $this->successResponse(["message"=>"Archivo importado correctamente", "new_users" => $user->newUsers()]);
     }
 }

@@ -34,9 +34,10 @@ trait ImportTrait
             array_push($this->validator_fails, 'El archivo cargado posee los siguientes nombres de columnas repetidos: '. str_replace("_"," ", implode(", ",$repetido)));
             return;
         }
-
+        $cant = count(array_filter($headings[0][0]));
         //Si encabezado del titulo trae menos de cinco elementos
-        if (count(array_filter($headings[0][0])) === 5) {
+        if (($this->act_on=="administrator" && !($cant == 5 || $cant == 6 )) || 
+            ($this->act_on=="graduate" && !($cant == 6 || $cant ==7))) {
             array_push($this->validator_fails, 'El archivo cargado no posee la cantidad de columnas requerida');
             return;
         }
@@ -61,13 +62,13 @@ trait ImportTrait
                 }                                  
             return;
         }
-        
+        return;
     }
 
     public function verifyEmptyColumn($query)
     {
         if (!empty($query["nombres"]) && !empty($query["apellidos"]) && !empty($query["cedula"]) && !empty($query["telefono"]) && !empty($query["correo"])) {
-            if ($this->act_on == "egresado") {
+            if ($this->act_on == "graduate") {
                 if (!empty($query["periodo_de_egreso"]) && !empty($query["carrera"])) {
                     return true;
                 }
@@ -110,9 +111,10 @@ trait ImportTrait
                 }
                 break;
             default:
-                array_push($this->validator_fails, 'Accion a ejecutar sobre los usuarios no es valida');
+                array_push($this->validator_fails, 'Accion a ejecutar sobre los usuarios no es valida'. $this->action);
                 break;
         }
+        return;
     }
 
     public function errors($err = null)
@@ -152,7 +154,7 @@ trait ImportTrait
             'telefono' => array("nullable","string","regex:/0(2(12|3[4589]|4[0-9]|[5-8][1-9]|9[1-5])|(4(12|14|16|24|26)))-?[0-9]{7}$/"),
         ];
 
-        if ($this->act_on == "egresado") {
+        if ($this->act_on == "graduate") {
            $rules +=[
                 "periodo_egreso"=>array("required","regex:/^[12][0-9]{3}[-][1-9]{1}$/"),
                 "fecha_egreso"=>"nullable|date",
@@ -175,7 +177,7 @@ trait ImportTrait
         if ($action == 'update') {
             $rules += [
                 'correo' => 'required|email|unique:users,correo,'.$row["user"]->id,
-                "cedula"=> array('required','string','unique:users,cedula','regex:/[VvEe]-[0-9]{6,}$/'),
+                "cedula"=> array('required','string','unique:users,cedula,'.$row["user"]->id,'regex:/[VvEe]-[0-9]{6,}$/'),
             ];
             if ($this->act_on == "graduate") {
                 $rules += [
@@ -203,10 +205,6 @@ trait ImportTrait
     //crear usuarios
     public function createUser($query)
     {
-        $query["carrera"] = Carrera::where("nombre", $query["carrera"])->first()->id;
-        if(!empty($query["fecha_de_egreso"])){
-            $query["fecha_de_egreso"] = Carbon::parse($query["fecha_de_egreso"])->utc()->toDateTimeString();
-        }
         if ($this->validator($query, 'create')) {
             $user = User::create([
                 'nombres'=>$query["nombres"],
@@ -217,6 +215,10 @@ trait ImportTrait
                 'user_id'=>$this->id,
             ]);
             if ($this->act_on == "graduate") {
+                $query["carrera"] = Carrera::where("nombre", $query["carrera"])->first()->id;
+                if(!empty($query["fecha_de_egreso"])){
+                    $query["fecha_de_egreso"] = Carbon::parse($query["fecha_de_egreso"])->utc()->toDateTimeString();
+                }
                 $egresado =Egresado::create([
                     'user_id'=>$user->id,
                     'modo_registro' =>"Exportado",
@@ -233,9 +235,8 @@ trait ImportTrait
 
     //actualizar usuarios
     public function updateUser($query, $user)
-    {
-        $query["carrera"] = Carrera::where("nombre", $query["carrera"])->first()->id;
-        $query['id'] = $user->id;
+    {  
+         $query['id'] = $user->id;
         $query['user'] = $user;
         
         if ($this->validator($query, 'update')) {
@@ -248,6 +249,7 @@ trait ImportTrait
             ]);
 
             if ($this->act_on == "graduate") {
+                $query["carrera"] = Carrera::where("nombre", $query["carrera"])->first()->id;
                 $user->egresado->update([
                     'correo'=>$query["correo_personal"],
                     'periodo_egreso'=>$query["periodo_de_egreso"],
