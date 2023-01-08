@@ -16,7 +16,7 @@ class CreateBolsaEgresadoTable extends Migration
         Schema::create('bolsa_egresado', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('egresado_id')->unsigned();
-            $table->foreign('egresado_id')->references('id')->on('users');
+            //$table->foreign('egresado_id')->references('id')->on('users');
             $table->integer('bolsa_trabajo_id')->unsigned();
             $table->foreign('bolsa_trabajo_id')->references('id')->on('bolsa_trabajo');
             $table->string('estado');
