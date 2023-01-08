@@ -23,6 +23,11 @@ class User extends Model
         'id','nombres', 'apellidos', 'cedula', 'telefono', "correo", "user_id"
     ];
 
+    public function setCedulaAttribute($cedula)
+    {
+        $this->attributes['cedula']= strtoupper($cedula);
+    }
+
     public function carrera()
     {
         return $this->hasOne(Carrera::class);

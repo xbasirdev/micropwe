@@ -1,5 +1,7 @@
 <?php
 
+declare (strict_types = 1);
+
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -11,8 +13,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // $this->call('UsersTableSeeder');
+        $this->call(UserTableSeeder::class);
+        $this->call(EgresadoTableSeeder::class);
 
-        factory(\App\Product::class, 50)->create();
     }
 }
