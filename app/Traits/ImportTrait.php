@@ -151,7 +151,7 @@ trait ImportTrait
         $rules = [
             'nombres' => 'required|string',
             'apellidos' => 'required|string',
-            'telefono' => array("nullable","string","regex:/0(2(12|3[4589]|4[0-9]|[5-8][1-9]|9[1-5])|(4(12|14|16|24|26)))-?[0-9]{7}$/"),
+            'telefono' => array("nullable","string"),
         ];
 
         if ($this->act_on == "graduate") {
