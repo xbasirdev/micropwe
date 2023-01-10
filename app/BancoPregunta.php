@@ -15,7 +15,17 @@ class BancoPregunta extends Model
 
     public $table = "banco_pregunta";
     protected $fillable = [
-        'nombre', 'user_id', 'estado'
+        'banco_id', 'pregunta_id'
     ];
+
+    public function banco()
+    {
+        return $this->belongsTo(Banco::class);
+    }
+
+    public function pregunta()
+    {
+        return $this->belongsTo(CuestionarioPregunta::class);
+    }
 
 }
