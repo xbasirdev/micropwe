@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\BancoPregunta;
+use App\OpcionPregunta;
 use App\CuestionarioPregunta;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -33,6 +34,16 @@ class BancoPreguntaController extends Controller
         $requesteAux = $request->all();
         $requesteAux['pregunta_id'] = $bancoCuestionarioPregunta->id;
         $bancoPregunta = BancoPregunta::create($requesteAux);
+        $opcionesArray = explode(',', $request->opciones);
+
+        foreach ($opcionesArray as $opcion){
+            OpcionPregunta::create([
+                'esperada' => 0,
+                'nombre' => $opcion,
+                'pregunta_id' => $bancoPregunta->pregunta_id,
+            ]);
+        }
+
         return $this->successResponse($bancoPregunta);
 
     }
@@ -55,9 +66,15 @@ class BancoPreguntaController extends Controller
     public function destroy($bancoPregunta)
     {
 
-        $bancoPregunta = BancoPregunta::findOrFail($bancoPregunta);
-        $bancoPregunta->delete();
-        return $this->successResponse($bancoPregunta);
+        \DB::table('opcion_pregunta')
+        ->where('pregunta_id',$bancoPregunta)
+        ->delete();
+
+        \DB::table('banco_pregunta')
+        ->where('pregunta_id',$bancoPregunta)
+        ->delete();
+
+        return $this->successResponse(true);
     }
 
 

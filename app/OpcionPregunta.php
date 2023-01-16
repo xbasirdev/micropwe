@@ -13,7 +13,7 @@ class OpcionPregunta extends Model
      * @var array
      */
 
-    public $table = "cuestionario_pregunta";
+    public $table = "opcion_pregunta";
     protected $fillable = [
         'nombre', 'esperada', 'pregunta_id'
     ];

@@ -55,7 +55,9 @@ class BancoController extends Controller
 
     public function destroy($banco)
     {
-
+        \DB::table('banco_pregunta')
+        ->where('banco_id',$banco)
+        ->delete();
         $banco = Banco::findOrFail($banco);
         $banco->delete();
         return $this->successResponse($banco);
