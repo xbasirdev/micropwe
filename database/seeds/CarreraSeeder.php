@@ -29,12 +29,3 @@ class CarreraTableSeeder extends Seeder
         ]);
     }
 }
-
-PUERTO ORDAZ
-
-
-
-Ingeniería y Tecnología
-Ciencias de la Educación
-Ciencias Sociales
-Ciencias del Agro
