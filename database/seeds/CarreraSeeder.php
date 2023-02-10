@@ -14,14 +14,14 @@ class CarreraTableSeeder extends Seeder
      */
     public function run()
     {
-        Carrera::firstOrCreate([
+        Carrera::firstOrCreate(['id'=>1],[
             'id'=>1,
             'nombre' =>"Ingenieria informatica",
             'user_id' =>"1",
             'estado' =>"1",
         ]);
 
-        Carrera::firstOrCreate([
+        Carrera::firstOrCreate(['id'=>2],[
             'id'=>2,
             'nombre' =>"Ingenieria industrial",
             'user_id' =>"1",
