@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\CuestionarioPregunta;
+use App\OpcionPregunta;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -17,22 +18,35 @@ class CuestionarioPreguntaController extends Controller
 
     public function show($cuestionarioPregunta)
     {
-        $cuestionarioPregunta = CuestionarioPregunta::findOrFail($cuestionarioPregunta);
-        return $this->successResponse($cuestionarioPregunta);
+
+        $cuestionarioPreguntas = \DB::table('cuestionario_pregunta')
+        ->where('cuestionario_pregunta.cuestionario_id', $cuestionarioPregunta)
+        ->Join('tipo_pregunta', 'cuestionario_pregunta.tipoPregunta_id', 'tipo_pregunta.id')
+        ->select('cuestionario_pregunta.id as id',
+                 'tipo_pregunta.id as tipo_pregunta_id',
+                 'tipo_pregunta.nombre as nombre',
+                 'tipo_pregunta.descripcion as descripcion',
+                 'cuestionario_pregunta.pregunta as pregunta',
+                 'cuestionario_pregunta.numPregunta as numPregunta')
+        ->get();
+        
+        return $this->successResponse($cuestionarioPreguntas);
     }
 
     public function store(Request $request)
     {
-        $rules = [
-            'nombre' => 'required|max:120',
-            'email' => 'required',
-            'destino' => 'required',
-            'numero' => 'required',
-            'landing' => 'required',
-        ];
-
-        $this->validate($request, $rules);
         $cuestionarioPregunta = CuestionarioPregunta::create($request->all());
+        //$bancoPregunta = BancoPregunta::create($requesteAux);
+        $opcionesArray = explode(',', $request->opciones);
+
+        foreach ($opcionesArray as $opcion){
+            OpcionPregunta::create([
+                'esperada' => 0,
+                'nombre' => $opcion,
+                'pregunta_id' => $cuestionarioPregunta->id,
+            ]);
+        }
+
         return $this->successResponse($cuestionarioPregunta);
 
     }
@@ -60,11 +74,14 @@ class CuestionarioPreguntaController extends Controller
 
     public function destroy($cuestionarioPregunta)
     {
+        \DB::table('opcion_pregunta')
+        ->where('pregunta_id',$cuestionarioPregunta)
+        ->delete();
 
-        $cuestionarioPregunta = CuestionarioPregunta::findOrFail($cuestionarioPregunta);
-        $cuestionarioPregunta->delete();
-        return $this->successResponse($cuestionarioPregunta);
+        \DB::table('cuestionario_pregunta')
+        ->where('id',$cuestionarioPregunta)
+        ->delete();
+
+        return $this->successResponse(true);
     }
-
-
 }

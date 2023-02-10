@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\CuestionarioRespuesta;
+use App\Verification;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Carbon\Carbon;
 
 class CuestionarioRespuestaController extends Controller
 {
@@ -22,18 +24,33 @@ class CuestionarioRespuestaController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $rules = [
-            'pregunta_id' => 'required',
-            'egresado_id' => 'required',
-            'codigoVerificacion_id' => 'required',
-            'fecha' => 'required',
-            'respuesta' => 'required|max:240'
-        ];
-
-        $this->validate($request, $rules);
-        $cuestionarioRespuesta = CuestionarioRespuesta::create($request->all());
-        return $this->successResponse($cuestionarioRespuesta);
+    {   
+        $codigoVer = $request[0]['cuestionario_id'].'E'.$request[0]['egresado_id'].'V';
+        $codVerFinal = Verification::create([
+            'codigo' => $codigoVer
+        ]);
+        for($i = 0; $i < count($request->all()); $i++){
+            if(is_array($request[$i]['respuesta'])){
+                foreach ($request[$i]['respuesta'] as $answer){
+                    CuestionarioRespuesta::create([
+                        'pregunta_id' => $request[$i]['pregunta_id'],
+                        'egresado_id' => intval($request[$i]['egresado_id']),
+                        'fecha' => Carbon::now(),
+                        'respuesta' => $answer,
+                        'codigoVerificacion_id' => $codVerFinal->id
+                    ]);
+                }
+            }else{
+                CuestionarioRespuesta::create([
+                    'pregunta_id' => $request[$i]['pregunta_id'],
+                    'egresado_id' => intval($request[$i]['egresado_id']),
+                    'fecha' => Carbon::now(),
+                    'respuesta' => $request[$i]['respuesta'],
+                    'codigoVerificacion_id' => $codVerFinal->id
+                ]);
+            }
+        }
+        return $this->successResponse($codVerFinal);
 
     }
 

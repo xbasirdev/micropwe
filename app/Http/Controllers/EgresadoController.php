@@ -16,6 +16,14 @@ class EgresadoController extends Controller
         return $this->successResponse($users);
     }
 
+    public function show($userId)
+    {
+        $user = \DB::table('egresado')
+        ->where('egresado.user_id', $userId)
+        ->get();
+        return $this->successResponse($user);
+    }
+
     public function changeNotificationStatus(Request $request)
     {
         $user = User::where("cedula", $request->id)->orWhere("correo", $request->id)->with("egresado")->first();

@@ -30,6 +30,12 @@ class UserController extends Controller
         return $this->successResponse($user);
     }
 
+    public function showById($user)
+    {
+        $user = User::where('user_id', $user)->with(["egresado", "egresado.carrera"])->first();
+        return $this->successResponse($user);
+    }
+
     public function store(Request $request)
     {
 

@@ -48,6 +48,42 @@ class BancoPreguntaController extends Controller
 
     }
 
+    public function storeBank($banco, $cuestionario)
+    {
+        
+        $bancoPreguntas = \DB::table('banco_pregunta')
+        ->where('banco_pregunta.banco_id', $banco)
+        ->Join('cuestionario_pregunta', 'banco_pregunta.pregunta_id', 'cuestionario_pregunta.id')
+        ->Join('tipo_pregunta', 'cuestionario_pregunta.tipoPregunta_id', 'tipo_pregunta.id')
+        ->get();
+
+        foreach ($bancoPreguntas as $pregunta){
+            $preguntaNueva = CuestionarioPregunta::create([
+                'pregunta' => $pregunta->pregunta,
+                'preguntaBanco' => 0,
+                'numPregunta' => 0,
+                'cuestionario_id' => $cuestionario,
+                'tipoPregunta_id' => $pregunta->tipoPregunta_id,
+            ]);
+
+            $opcionesPregunta = \DB::table('opcion_pregunta')
+            ->where('opcion_pregunta.pregunta_id', $pregunta->pregunta_id)
+            ->get();
+
+            foreach ($opcionesPregunta as $opcion){
+                OpcionPregunta::create([
+                    'esperada' => 0,
+                    'nombre' => $opcion->nombre,
+                    'pregunta_id' => $preguntaNueva->id,
+                ]);
+            }
+        }
+
+        return $this->successResponse(true);
+
+    }
+    
+
     public function update(Request $request, $bancoPregunta)
     {
         $bancoPregunta = BancoPregunta::findOrFail($bancoPregunta);

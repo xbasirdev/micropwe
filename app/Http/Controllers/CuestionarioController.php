@@ -77,7 +77,9 @@ class CuestionarioController extends Controller
 
     public function destroy($cuestionario)
     {
-
+        \DB::table('objetivo_cuestionario')
+        ->where('cuestionario_id', $cuestionario)
+        ->delete();
         $cuestionario = Cuestionario::findOrFail($cuestionario);
         $cuestionario->delete();
         return $this->successResponse($cuestionario);

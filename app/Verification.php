@@ -13,7 +13,7 @@ class Verification extends Model
      * @var array
      */
 
-    public $table = "verification";
+    public $table = "verificacion";
     protected $fillable = [
         'codigo'
     ];

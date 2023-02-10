@@ -85,6 +85,7 @@ $router->group(['prefix' => 'api'], function () use ($router) {
     $router->group(['prefix' => 'egresado'], function () use ($router) {
         $router->post('/', ['uses' => 'EgresadoController@index']);
         $router->post('/change-notification-status', ['as' => 'change-notification-status', 'uses' => 'EgresadoController@changeNotificationStatus']);
+        $router->get('/{userId}', ['uses' => 'EgresadoController@show']);
     });
 
     $router->group(['prefix' => 'bolsaEgresado'], function () use ($router) {
@@ -106,6 +107,7 @@ $router->group(['prefix' => 'api'], function () use ($router) {
     $router->group(['prefix' => 'bancoPregunta'], function () use ($router) {
         $router->get('/', ['uses' => 'BancoPreguntaController@index']);
         $router->post('/', ['uses' => 'BancoPreguntaController@store']);
+        $router->post('/{banco}/{cuestionario}', ['uses' => 'BancoPreguntaController@storeBank']);
         $router->get('/{bancoPregunta}', ['uses' => 'BancoPreguntaController@show']);
         $router->patch('/{bancoPregunta}', ['uses' => 'BancoPreguntaController@update']);
         $router->delete('/{bancoPregunta}', ['uses' => 'BancoPreguntaController@destroy']);

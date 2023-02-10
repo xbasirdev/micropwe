@@ -15,7 +15,7 @@ class CuestionarioRespuesta extends Model
 
     public $table = "cuestionario_respuesta";
     protected $fillable = [
-        'numPregunta', 'cuestionario_id', 'tipoPregunta_id', 'pregunta', 'preguntaBanco'
+        'pregunta_id', 'egresado_id', 'codigoVerificacion_id', 'fecha', 'respuesta'
     ];
 
 }
