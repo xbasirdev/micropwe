@@ -3,6 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\CuestionarioPregunta;
+use App\Egresado;
+use App\Verification;
 
 class CuestionarioRespuesta extends Model
 {
@@ -17,5 +20,20 @@ class CuestionarioRespuesta extends Model
     protected $fillable = [
         'pregunta_id', 'egresado_id', 'codigoVerificacion_id', 'fecha', 'respuesta'
     ];
+
+    public function pregunta()
+    {
+        return $this->belongsTo(CuestionarioPregunta::class);
+    }
+
+    public function egresado()
+    {
+        return $this->belongsTo(Egresado::class);
+    }
+
+    public function codigoVerificacion()
+    {
+        return $this->belongsTo(Verification::class);
+    }
 
 }

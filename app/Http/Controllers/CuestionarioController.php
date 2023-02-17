@@ -6,6 +6,10 @@ use App\Cuestionario;
 use App\ObjetivoCuestionario;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Exports\ExportD;
+use App\Exports\ExportR;
+use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CuestionarioController extends Controller
 {
@@ -85,5 +89,23 @@ class CuestionarioController extends Controller
         return $this->successResponse($cuestionario);
     }
 
+    
+    public function exportD(Request $request, $cuestionario)
+    {
+        $cuestionario = Cuestionario::findOrFail($cuestionario);
+        $ext = $request->base_format;
+        $title = "datos-estadisticos-" . Carbon::now()->format("yymdhms") . '.' . $ext;
+        return Excel::download(new ExportD($cuestionario, $request->all()), $title);
+    }
+
+    
+    public function exportR(Request $request, $cuestionario)
+    {
+        
+        $cuestionario = Cuestionario::findOrFail($cuestionario);
+        $ext = $request->base_format;
+        $title = "respuesta-" . Carbon::now()->format("yymdhms") . '.' . $ext;
+        return Excel::download(new ExportR($cuestionario), $title);
+    }
 
 }

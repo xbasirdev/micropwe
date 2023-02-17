@@ -27,7 +27,7 @@ class EgresadoController extends Controller
     public function changeNotificationStatus(Request $request)
     {
         $user = User::where("cedula", $request->id)->orWhere("correo", $request->id)->with("egresado")->first();
-        $user->egresado()->update(["notificacion"=>$request->status=="1" ? true:false]);
+        $user->egresado()->update(["notificacion"=>$request->status]);
         return $this->successResponse($user->egresado);
     }
 
