@@ -119,6 +119,8 @@ $router->group(['prefix' => 'api'], function () use ($router) {
         $router->get('/{cuestionario}', ['uses' => 'CuestionarioController@show']);
         $router->patch('/{cuestionario}', ['uses' => 'CuestionarioController@update']);
         $router->delete('/{cuestionario}', ['uses' => 'CuestionarioController@destroy']);
+        $router->post('/export-d/{cuestionario}', ['as' => 'export-r', 'uses' => 'CuestionarioController@exportD']);
+        $router->post('/export-r/{cuestionario}', ['as' => 'export-d', 'uses' => 'CuestionarioController@exportR']);
     });
 
     $router->group(['prefix' => 'cuestionarioPregunta'], function () use ($router) {

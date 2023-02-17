@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\CuestionarioPregunta;
 
 class Cuestionario extends Model
 {
@@ -17,5 +18,9 @@ class Cuestionario extends Model
     protected $fillable = [
         'nombre', 'user_id', 'descripcion', 'tipo', 'privacidad', 'fecha_inicio', 'fecha_fin',
     ];
+    public function preguntas()
+    {
+        return $this->hasOne(CuestionarioPregunta::class);
+    }
 
 }
