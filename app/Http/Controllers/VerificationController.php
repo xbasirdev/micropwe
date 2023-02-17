@@ -17,8 +17,22 @@ class VerificationController extends Controller
 
     public function show($verification)
     {
-        $verification = Verification::findOrFail($verification);
-        return $this->successResponse($verification);
+        $verificacion= \DB::table('verificacion')
+        ->where('verificacion.codigo', $verification)
+        ->leftJoin('cuestionario_respuesta', 'verificacion.id', 'cuestionario_respuesta.codigoVerificacion_id')
+        ->leftJoin('users', 'cuestionario_respuesta.egresado_id', 'users.id')
+        ->leftJoin('cuestionario_pregunta', 'cuestionario_respuesta.pregunta_id', 'cuestionario_pregunta.id')
+        ->leftJoin('cuestionario', 'cuestionario_pregunta.cuestionario_id', 'cuestionario.id')
+        ->select('cuestionario_respuesta.respuesta as respuesta',
+        'cuestionario_respuesta.fecha as fecha',
+        'cuestionario_pregunta.pregunta as pregunta',
+        'cuestionario.nombre as cuestionario',
+        'users.nombres as nombreEgresado',
+        'users.apellidos as apellidoEgresado',
+        'users.cedula as cedulaEgresado')
+        ->get();
+        
+        return $this->successResponse($verificacion);
     }
 
     public function store(Request $request)
