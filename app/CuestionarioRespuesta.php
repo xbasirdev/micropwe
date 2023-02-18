@@ -28,12 +28,12 @@ class CuestionarioRespuesta extends Model
 
     public function egresado()
     {
-        return $this->belongsTo(Egresado::class);
+        return $this->belongsTo(Egresado::class, "egresado_id", "id");
     }
 
     public function codigoVerificacion()
     {
-        return $this->belongsTo(Verification::class);
+        return $this->belongsTo(Verification::class, "codigoVerificacion_id", "id");
     }
 
 }

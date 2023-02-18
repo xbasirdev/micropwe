@@ -23,4 +23,9 @@ class Cuestionario extends Model
         return $this->hasOne(CuestionarioPregunta::class);
     }
 
+    public function respuestas()
+    {
+        return $this->hasOne(CuestionarioPregunta::class);
+    }
+
 }

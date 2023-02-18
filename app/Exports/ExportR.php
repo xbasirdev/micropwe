@@ -45,14 +45,14 @@ class ExportR implements FromCollection, WithMapping, WithCustomCsvSettings, Wit
     {       
         
         return [
-            $cuestionario_respuesta->cuestionario->nombre,
+            $cuestionario_respuesta->pregunta->cuestionario->nombre,
             $cuestionario_respuesta->pregunta->pregunta,
             $cuestionario_respuesta->respuesta,
             $cuestionario_respuesta->egresado->user->nombres. " ".$cuestionario_respuesta->egresado->user->apellidos ,
             $cuestionario_respuesta->egresado->user->cedula,
             $cuestionario_respuesta->egresado->carrera->nombre,
-            $cuestionario_respuesta->cuestionario->fecha_fin,
-            $cuestionario_respuesta->codigoVerificacion->codigo,
+            $cuestionario_respuesta->created_at,
+            $cuestionario_respuesta->codigoVerificacion->codigo ?? "",
         ];
     }
     public function columnFormats(): array
@@ -77,7 +77,7 @@ class ExportR implements FromCollection, WithMapping, WithCustomCsvSettings, Wit
          * @return \Illuminate\Support\Collection
          */
 
-        return $this->cuestionario->respuestas ? $this->cuestionario->respuestas: collect([]);
+        return $this->cuestionario;
     }
 
     public function getCsvSettings(): array

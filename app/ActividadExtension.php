@@ -15,7 +15,7 @@ class ActividadExtension extends Model
 
     public $table = "actividad_extension";
     protected $fillable = [
-        'titulo', 'descripcion', 'tipo', 'carrera', 'periodo'
+        'titulo', 'descripcion', 'tipo', 'carrera', 'periodo', 'user_id'
     ];
 
 }

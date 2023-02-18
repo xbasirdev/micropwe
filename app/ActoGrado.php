@@ -15,7 +15,7 @@ class ActoGrado extends Model
 
     public $table = "acto_grado";
     protected $fillable = [
-        'titulo', 'descripcion', 'fecha'
+        'titulo', 'descripcion', 'fecha', 'user_id'
     ];
 
 }

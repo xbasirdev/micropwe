@@ -18,4 +18,14 @@ class CuestionarioPregunta extends Model
         'numPregunta', 'cuestionario_id', 'tipoPregunta_id', 'pregunta', 'preguntaBanco'
     ];
 
+    public function respuesta()
+    {
+        return $this->hasOne(CuestionarioRespuesta::class);
+    }
+
+    public function cuestionario()
+    {
+        return $this->belongsTo(Cuestionario::class);
+    }
+
 }

@@ -102,6 +102,7 @@ $app->register(Illuminate\Filesystem\FilesystemServiceProvider::class);
 
 $app->withFacades(true, [
     Illuminate\Support\Facades\Notification::class => "Notification",
+    Maatwebsite\Excel\Facades\Excel::class, 'Excel'
 ]);
 
 /*
@@ -125,7 +126,7 @@ $app->alias('mail.manager', Illuminate\Contracts\Mail\Factory::class);
 $app->alias('mailer', Illuminate\Mail\Mailer::class);
 $app->alias('mailer', Illuminate\Contracts\Mail\Mailer::class);
 $app->alias('mailer', Illuminate\Contracts\Mail\MailQueue::class);
-class_alias('Maatwebsite\Excel\Facades\Excel', 'Excel');
+
 
 
 

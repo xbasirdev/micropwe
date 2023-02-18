@@ -6,6 +6,7 @@ use App\Cuestionario;
 use App\ObjetivoCuestionario;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\CuestionarioRespuesta;
 use App\Exports\ExportD;
 use App\Exports\ExportR;
 use Carbon\Carbon;
@@ -101,11 +102,12 @@ class CuestionarioController extends Controller
     
     public function exportR(Request $request, $cuestionario)
     {
-        
-        $cuestionario = Cuestionario::findOrFail($cuestionario);
         $ext = $request->base_format;
+        $cuestionario_respuesta =  CuestionarioRespuesta::whereHas("pregunta", function($query) use ($cuestionario){
+            $query->where("cuestionario_id", $cuestionario);
+        })->get();
         $title = "respuesta-" . Carbon::now()->format("yymdhms") . '.' . $ext;
-        return Excel::download(new ExportR($cuestionario), $title);
+        return Excel::download(new ExportR($cuestionario_respuesta), $title);
     }
 
 }
