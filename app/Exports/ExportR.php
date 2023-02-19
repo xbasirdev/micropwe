@@ -48,9 +48,9 @@ class ExportR implements FromCollection, WithMapping, WithCustomCsvSettings, Wit
             $cuestionario_respuesta->pregunta->cuestionario->nombre,
             $cuestionario_respuesta->pregunta->pregunta,
             $cuestionario_respuesta->respuesta,
-            $cuestionario_respuesta->egresado->user->nombres. " ".$cuestionario_respuesta->egresado->user->apellidos ,
-            $cuestionario_respuesta->egresado->user->cedula,
-            $cuestionario_respuesta->egresado->carrera->nombre,
+            $cuestionario_respuesta->egresado->nombres. " ".$cuestionario_respuesta->egresado->apellidos ,
+            $cuestionario_respuesta->egresado->cedula,
+            $cuestionario_respuesta->egresado->egresado->carrera->nombre,
             $cuestionario_respuesta->created_at,
             $cuestionario_respuesta->codigoVerificacion->codigo ?? "",
         ];
