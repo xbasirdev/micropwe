@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\CuestionarioPregunta;
-use App\Egresado;
+use App\User;
 use App\Verification;
 
 class CuestionarioRespuesta extends Model
@@ -28,7 +28,7 @@ class CuestionarioRespuesta extends Model
 
     public function egresado()
     {
-        return $this->belongsTo(Egresado::class, "egresado_id", "id");
+        return $this->belongsTo(User::class, "egresado_id", "id");
     }
 
     public function codigoVerificacion()

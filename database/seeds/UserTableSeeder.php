@@ -29,7 +29,7 @@ class UserTableSeeder extends Seeder
             'apellidos' =>"egresado",
             'cedula' =>"v-2222222",
             'telefono' =>"042422222222",
-            "correo"=>"egresado@gmail.com",
+            "correo"=>"graduate@gmail.com",
         ]);
     }
 }
