@@ -15,7 +15,7 @@ class BolsaTrabajo extends Model
 
     public $table = "bolsa_trabajo";
     protected $fillable = [
-        'nombre', 'user_id', 'empresa', 'vacantes', 'requisitos', 'carreras', 'fecha_publicacion', 'fecha_disponibilidad', 'contacto', 'estatus'
+        'nombre', 'user_id', 'empresa', 'vacantes', 'requisitos', 'carrera_id', 'fecha_publicacion', 'fecha_disponibilidad', 'contacto', 'estatus'
     ];
 
 }

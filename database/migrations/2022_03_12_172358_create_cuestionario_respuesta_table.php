@@ -19,7 +19,6 @@ class CreateCuestionarioRespuestaTable extends Migration
             $table->integer('egresado_id')->unsigned();
             $table->integer('codigoVerificacion_id')->unsigned();
             $table->foreign('pregunta_id')->references('id')->on('cuestionario_pregunta');
-            $table->integer('egresado_id');
             $table->foreign('codigoVerificacion_id')->references('id')->on('verificacion');
             $table->date('fecha');
             $table->string('respuesta');
